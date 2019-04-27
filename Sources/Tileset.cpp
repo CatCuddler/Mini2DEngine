@@ -7,6 +7,19 @@
 #include <Kore/Graphics1/Image.h>
 #include <Kore/TextureImpl.h>
 
+namespace{
+	Graphics4::Texture* image;
+	
+	int walkAnimationID = 0;
+	int walkFrameCount = 0;
+	
+	int tilesetRows = -1;
+	int tilesetColumns = -1;
+	
+	int mapRows = 9;
+	int mapColumns = 16;
+}
+
 void loadCsv(const char* csvFile) {
 	FileReader file(csvFile);
 	
@@ -19,13 +32,13 @@ void loadCsv(const char* csvFile) {
 	}
 	cpyData[length] = 0;
 	
-	source = new int[rows * columns];
+	source = new int[mapRows * mapColumns];
 	int i = 0;
 	
 	char delimiter[] = ",;\n";
 	char* ptr = std::strtok(cpyData, delimiter);
 	while (ptr != nullptr) {
-		assert(i < rows * columns);
+		assert(i < mapRows * mapColumns);
 		int num = atoi(ptr);
 		//log(Info, "%i -> %i", i, num);
 		source[i] = num;
@@ -35,24 +48,40 @@ void loadCsv(const char* csvFile) {
 }
 
 void initTiles(const char* csvFilePath, const char* tileFilePath) {
-	tileFile = tileFilePath;
-	loadCsv(csvFilePath);
 	image = new Graphics4::Texture(tileFilePath);
+	
+	tilesetColumns = image->texWidth / tileWidth;
+	tilesetRows = image->texHeight / tileHeight;
+	
+	loadCsv(csvFilePath);
 }
 
-void drawTiles(Graphics2::Graphics2* g2, float camX, float camY) {
-	const int sourceColumns = image->texWidth / tileWidth;
-	const int sourceRows = image->texHeight / tileHeight;
-	
-	for (int y = 0; y < rows; ++y) {
-		for (int x = 0; x < columns; ++x) {
-			int index = source[y * columns + x];
+void drawTiles(Graphics2::Graphics2* g2, int camX, int camY) {
+	for (int y = 0; y < mapRows; ++y) {
+		for (int x = 0; x < mapColumns; ++x) {
+			int index = source[y * mapColumns + x];
 			
-			int row = (int)(index / sourceColumns);
-			int column = index % sourceColumns;
+			int row = (int)(index / mapColumns);
+			int column = index % mapColumns;
 			
 			g2->drawScaledSubImage(image, column * tileWidth, row * tileHeight, tileWidth, tileHeight, x * tileWidth - camX, y * tileHeight - camY, tileWidth, tileHeight);
 		}
+	}
+}
+
+void animate(Graphics2::Graphics2* g2, int camX, int camY, int posX, int posY) {
+	int row = (Walk0 / tilesetRows) - 1;
+	int column = walkAnimationID;
+	
+	g2->drawScaledSubImage(image, column * tileWidth, row * tileHeight, tileWidth, tileHeight, posX * tileWidth - camX, posY * tileHeight - camY, tileWidth, tileHeight);
+	
+	++walkFrameCount;
+	
+	if (walkFrameCount > 10) {
+		walkFrameCount = 0;
+		++walkAnimationID;
+		if (walkAnimationID >= 8)
+			walkAnimationID = 0;
 	}
 }
 
@@ -64,5 +93,5 @@ int getTileID(float px, float py) {
 int getTileIndex(float px, float py) {
 	int x = px / tileWidth;
 	int y = py / tileHeight;
-	return y * columns + x;
+	return y * mapColumns + x;
 }

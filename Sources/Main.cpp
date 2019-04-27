@@ -13,8 +13,8 @@
 using namespace Kore;
 
 namespace {
-	const int w = 320;
-	const int h = 320;
+	const int w = 32 * 16;
+	const int h = 32 * 9;
 	const int scale = 2;
 	
 	Graphics2::Graphics2* g2;
@@ -25,6 +25,7 @@ namespace {
 
 		g2->begin();
 		drawTiles(g2, 0, 0);
+		animate(g2, 0, 0, 0, 7);
 		g2->end();
 
 		Graphics4::end();
