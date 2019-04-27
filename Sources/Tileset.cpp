@@ -51,8 +51,6 @@ void drawTiles(Graphics2::Graphics2* g2, float camX, float camY) {
 			int row = (int)(index / sourceColumns);
 			int column = index % sourceColumns;
 			
-			log(LogLevel::Info, "row %i, column %i", row, column);
-			
 			g2->drawScaledSubImage(image, column * tileWidth, row * tileHeight, tileWidth, tileHeight, x * tileWidth - camX, y * tileHeight - camY, tileWidth, tileHeight);
 		}
 	}

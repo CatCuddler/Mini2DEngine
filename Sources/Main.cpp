@@ -22,8 +22,6 @@ namespace {
 	void update() {
 		Graphics4::begin();
 		Graphics4::clear(Graphics4::ClearColorFlag);
-		
-		log(LogLevel::Info, "update");
 
 		g2->begin();
 		drawTiles(g2, 0, 0);
