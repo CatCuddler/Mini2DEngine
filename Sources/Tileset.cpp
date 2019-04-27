@@ -1,23 +1,24 @@
 #include "pch.h"
 
-#include "Tileset.h"
-
 #include <Kore/IO/FileReader.h>
 #include <Kore/Log.h>
 #include <Kore/Graphics1/Image.h>
 #include <Kore/TextureImpl.h>
 
+#include "Tileset.h"
+#include "Settings.h"
+
 namespace{
 	Graphics4::Texture* image;
 	
-	int walkAnimationID = 0;
-	int walkFrameCount = 0;
+	int animIndex = 0;
+	int animCount = 0;
 	
 	int tilesetRows = -1;
 	int tilesetColumns = -1;
 	
-	int mapRows = 9;
-	int mapColumns = 16;
+	int lastPlayerPosX;
+	int lastPlayerPosY;
 }
 
 void loadCsv(const char* csvFile) {
@@ -71,18 +72,30 @@ void drawTiles(Graphics2::Graphics2* g2, int camX, int camY) {
 
 void animate(Graphics2::Graphics2* g2, int camX, int camY, int posX, int posY) {
 	int row = (Walk0 / tilesetRows) - 1;
-	int column = walkAnimationID;
+	int column = animIndex;
 	
-	g2->drawScaledSubImage(image, column * tileWidth, row * tileHeight, tileWidth, tileHeight, posX * tileWidth - camX, posY * tileHeight - camY, tileWidth, tileHeight);
-	
-	++walkFrameCount;
-	
-	if (walkFrameCount > 10) {
-		walkFrameCount = 0;
-		++walkAnimationID;
-		if (walkAnimationID >= 8)
-			walkAnimationID = 0;
+	if (lastPlayerPosX < posX) {
+		// Walk right
+		g2->drawScaledSubImage(image, column * tileWidth, row * tileHeight, tileWidth, tileHeight, posX - camX, posY - camY, tileWidth, tileHeight);
+	} else if (lastPlayerPosX > posX) {
+		// Walk left
+		g2->drawScaledSubImage(image, (column + 1)  * tileWidth, row * tileHeight, -tileWidth, tileHeight, posX - camX, posY - camY, tileWidth, tileHeight);
+	} else {
+		// Stand
+		g2->drawScaledSubImage(image, 2 * tileWidth, row * tileHeight, tileWidth, tileHeight, posX - camX, posY - camY, tileWidth, tileHeight);
 	}
+	
+	++animCount;
+	
+	if (animCount > 10) {
+		animCount = 0;
+		++animIndex;
+		if (animIndex >= 8)
+			animIndex = 0;
+	}
+		
+	lastPlayerPosX = posX;
+	lastPlayerPosY = posY;
 }
 
 int getTileID(float px, float py) {

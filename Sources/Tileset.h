@@ -6,9 +6,6 @@ using namespace Kore;
 
 namespace {
 	int* source;
-	
-	const int tileWidth = 32;
-	const int tileHeight = 32;
 }
 
 void loadCsv(const char* csvFile);
