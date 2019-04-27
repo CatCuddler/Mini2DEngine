@@ -6,6 +6,7 @@
 #include <Kore/Graphics4/Shader.h>
 #include <Kore/Graphics1/Color.h>
 #include <Kore/System.h>
+#include <Kore/Log.h>
 
 #include "Tileset.h"
 
@@ -20,8 +21,9 @@ namespace {
 
 	void update() {
 		Graphics4::begin();
-		//Graphics4::restoreRenderTarget();
 		Graphics4::clear(Graphics4::ClearColorFlag);
+		
+		log(LogLevel::Info, "update");
 
 		g2->begin();
 		drawTiles(g2, 0, 0);
@@ -39,7 +41,7 @@ int kore(int argc, char** argv) {
 	g2 = new Graphics2::Graphics2(w, h, false);
 	g2->setImageScaleQuality(Graphics2::Low);
 	
-	initTiles("tileset/tileset.csv", "tileset/tiles.png");
+	initTiles("tileset/map2.csv", "tileset/tileset2.png");
 
 	Kore::System::start();
 

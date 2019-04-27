@@ -27,7 +27,7 @@ void loadCsv(const char* csvFile) {
 	while (ptr != nullptr) {
 		assert(i < rows * columns);
 		int num = atoi(ptr);
-		log(Info, "%i -> %i", i, num);
+		//log(Info, "%i -> %i", i, num);
 		source[i] = num;
 		ptr = std::strtok(nullptr, delimiter);
 		i++;
@@ -48,8 +48,10 @@ void drawTiles(Graphics2::Graphics2* g2, float camX, float camY) {
 		for (int x = 0; x < columns; ++x) {
 			int index = source[y * columns + x];
 			
-			int row    = (int)(index / sourceColumns);
+			int row = (int)(index / sourceColumns);
 			int column = index % sourceColumns;
+			
+			log(LogLevel::Info, "row %i, column %i", row, column);
 			
 			g2->drawScaledSubImage(image, column * tileWidth, row * tileHeight, tileWidth, tileHeight, x * tileWidth - camX, y * tileHeight - camY, tileWidth, tileHeight);
 		}
