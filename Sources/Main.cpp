@@ -85,6 +85,14 @@ namespace {
 		physics.AddObject(player);
 	}
 	
+	void SpawnCoins(vec3 position) {
+		PhysicsObject* coin = new PhysicsObject();
+		coin->SetPosition(position);
+		coin->Collider.radius = 0.2f;
+		coin->Mass = 5;
+		physics.AddObject(coin);
+	}
+	
 	void printPosition() {
 		vec3 playerPosition = player->GetPosition();
 		log(LogLevel::Info, "%f %f %f", playerPosition.x(), playerPosition.y(), playerPosition.z());

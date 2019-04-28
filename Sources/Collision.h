@@ -9,6 +9,13 @@ public:
 	Kore::vec3 normal;
 };
 
+// A box is defined by width and height and position (top left)
+class BoxCollider {
+public:
+	Kore::vec3 position;
+	float width, height;
+};
+
 // A sphere is defined by a radius and a center.
 class SphereCollider {
 public:
@@ -31,7 +38,6 @@ public:
 	float PenetrationDepth(const SphereCollider& other) {
 		return other.radius + radius - (other.center - center).getLength();
 	}
-	
 	
 	bool IntersectsWith(const PlaneCollider& other) {
 		return other.normal.dot(center) + other.d <= radius;
