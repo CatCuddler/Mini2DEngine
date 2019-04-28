@@ -8,13 +8,13 @@ int PhysicsObject::currentID;
 PhysicsObject::PhysicsObject() {
 	Accumulator = vec3(0, 0, 0);
 	velocity = vec3(0, 0, 0);
-	Collider.radius = 0.1f;
+	sphereCollider.radius = 0.1f;
 	id = ++currentID;
 }
 
 void PhysicsObject::HandleCollision(const PlaneCollider& collider, float deltaT) {
 	// Check if we are colliding with the plane
-	if (Collider.IntersectsWith(collider)) {
+	if (sphereCollider.IntersectsWith(collider)) {
 		
 		// Kore::log(Info, "Floor");
 		float restitution = 0.8f;
@@ -29,11 +29,11 @@ void PhysicsObject::HandleCollision(const PlaneCollider& collider, float deltaT)
 		
 		
 		// Move the object out of the collider
-		float penetrationDepth = Collider.PenetrationDepth(collider);
+		float penetrationDepth = sphereCollider.PenetrationDepth(collider);
 		//Position += collider.normal * -penetrationDepth;
 		//SetPosition(Position);
 		
-		bool Result = Collider.IntersectsWith(collider);
+		bool Result = sphereCollider.IntersectsWith(collider);
 		
 		// Calculate the impulse
 		// The plane is immovable, so we have to move all the way
@@ -42,8 +42,8 @@ void PhysicsObject::HandleCollision(const PlaneCollider& collider, float deltaT)
 		// If the object is very slow, assume resting contact
 		if (deltaVelocity > -1.5f) {
 			velocity.set(0, 0, 0);
-			position = vec3(position.x(), Collider.radius - collider.d, position.z());
-			Collider.center = position;
+			position = vec3(position.x(), sphereCollider.radius - collider.d, position.z());
+			sphereCollider.center = position;
 			return;
 		}
 		
@@ -54,10 +54,9 @@ void PhysicsObject::HandleCollision(const PlaneCollider& collider, float deltaT)
 	}
 }
 
-
-void PhysicsObject::HandleCollision(PhysicsObject* other, float deltaT) {
-	// Check if we are colliding with the plane
-	if (Collider.IntersectsWith(other->Collider)) {
+void PhysicsObject::HandleCollision(BoxCollider* other, float deltaT) {
+	// Check if we are colliding with other
+	/*if (Collider.IntersectsWith(other->Collider)) {
 		
 		//Kore::log(Info, "Intersection");
 		
@@ -82,6 +81,41 @@ void PhysicsObject::HandleCollision(PhysicsObject* other, float deltaT) {
 		other->SetPosition(other->position - collisionNormal * penetrationDepth * 0.5f);
 		
 		bool Result = Collider.IntersectsWith(other->Collider);
+		
+		vec3 impulse = collisionNormal * -deltaVelocity;
+		
+		ApplyImpulse(-impulse);
+		other->ApplyImpulse(impulse);
+	}*/
+}
+
+void PhysicsObject::HandleCollision(PhysicsObject* other, float deltaT) {
+	// Handle the collision with another sphere
+	if (sphereCollider.IntersectsWith(other->sphereCollider)) {
+		
+		//Kore::log(Info, "Intersection");
+		
+		float restitution = 0.8f;
+		
+		vec3 collisionNormal = sphereCollider.GetCollisionNormal(other->sphereCollider);
+		
+		float separatingVelocity = -(other->velocity - velocity) * collisionNormal;
+		
+		// If we are already separating: Nothing to do
+		if (separatingVelocity < 0) return;
+		
+		float newSeparatingVelocity = -separatingVelocity * restitution;
+		
+		float deltaVelocity = newSeparatingVelocity - separatingVelocity;
+		
+		// Move the object out of the collider
+		float penetrationDepth = -sphereCollider.PenetrationDepth(other->sphereCollider);
+		
+		// We share the position change equally
+		SetPosition(position + collisionNormal * penetrationDepth * 0.5f);
+		other->SetPosition(other->position - collisionNormal * penetrationDepth * 0.5f);
+		
+		bool Result = sphereCollider.IntersectsWith(other->sphereCollider);
 		
 		vec3 impulse = collisionNormal * -deltaVelocity;
 		

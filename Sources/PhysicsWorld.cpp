@@ -10,9 +10,6 @@ PhysicsWorld::PhysicsWorld() {
 	for (int i = 0; i < 100; i++) {
 		physicsObjects[i] = nullptr;
 	}
-	
-	plane.normal = vec3(0, 1, 0);
-	plane.d = -1;
 }
 
 void PhysicsWorld::Update(float deltaT) {
@@ -31,7 +28,7 @@ void PhysicsWorld::Update(float deltaT) {
 	// Check for collisions with the plane
 	currentP = &physicsObjects[0];
 	while (*currentP != nullptr) {
-		(*currentP)->HandleCollision(plane, deltaT);
+		//(*currentP)->HandleCollision(plane, deltaT);
 		++currentP;
 	}
 	

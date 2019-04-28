@@ -3,16 +3,16 @@
 #include <Kore/Graphics4/Graphics.h>
 #include "Collision.h"
 
-class PhysicsObject;
+  class PhysicsObject;
 
 // Handles all physically simulated objects.
 class PhysicsWorld {
 public:
 	
-	// The ground plane
-	PlaneCollider plane;
+	// The ground
+	BoxCollider** groundObjects;
 	
-	// Null terminated array of PhysicsObject pointers
+	// Null terminated array of PhysicsObject pointers b
 	PhysicsObject** physicsObjects;
 	
 	PhysicsWorld();

@@ -101,7 +101,7 @@ namespace {
 		player = new PhysicsObject();
 		player->SetPosition(position);
 		player->velocity = velocity;
-		player->Collider.radius = tileWidth / 2;
+		player->sphereCollider.radius = tileWidth / 2;
 		player->Mass = 5;
 		player->ApplyImpulse(velocity);
 		physics.AddObject(player);
@@ -110,7 +110,7 @@ namespace {
 	void SpawnCoins(vec3 position) {
 		coin = new PhysicsObject();
 		coin->SetPosition(position);
-		coin->Collider.radius = tileWidth / 2;
+		coin->sphereCollider.radius = tileWidth / 2;
 		coin->Mass = 5;
 		physics.AddObject(coin);
 	}
