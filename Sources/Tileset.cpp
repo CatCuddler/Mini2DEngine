@@ -18,32 +18,32 @@ namespace{
 	
 	int tilesetRows = -1;
 	int tilesetColumns = -1;
-}
-
-void loadCsv(const char* csvFile) {
-	FileReader file(csvFile);
 	
-	void* data = file.readAll();
-	int length = file.size();
-	
-	char* cpyData = new char[length + 1];
-	for (int i = 0; i < length; ++i) {
-		cpyData[i] = ((char*)data)[i];
-	}
-	cpyData[length] = 0;
-	
-	source = new int[mapRows * mapColumns];
-	int i = 0;
-	
-	char delimiter[] = ",;\n";
-	char* ptr = std::strtok(cpyData, delimiter);
-	while (ptr != nullptr) {
-		assert(i < mapRows * mapColumns);
-		int num = atoi(ptr);
-		//log(Info, "%i -> %i", i, num);
-		source[i] = num;
-		ptr = std::strtok(nullptr, delimiter);
-		i++;
+	void loadCsv(const char* csvFile) {
+		FileReader file(csvFile);
+		
+		void* data = file.readAll();
+		int length = file.size();
+		
+		char* cpyData = new char[length + 1];
+		for (int i = 0; i < length; ++i) {
+			cpyData[i] = ((char*)data)[i];
+		}
+		cpyData[length] = 0;
+		
+		source = new int[mapRows * mapColumns];
+		int i = 0;
+		
+		char delimiter[] = ",;\n";
+		char* ptr = std::strtok(cpyData, delimiter);
+		while (ptr != nullptr) {
+			assert(i < mapRows * mapColumns);
+			int num = atoi(ptr);
+			//log(Info, "%i -> %i", i, num);
+			source[i] = num;
+			ptr = std::strtok(nullptr, delimiter);
+			i++;
+		}
 	}
 }
 
@@ -63,6 +63,21 @@ void drawTiles(Graphics2::Graphics2* g2, vec3 cameraPosition) {
 			drawSingleTile(g2, cameraPosition, vec3(x * tileWidth, y * tileHeight, 0), index);
 		}
 	}
+}
+
+void getBoxColliders(Kore::vec3* positions, int& count) {
+	int boxCounter = 0;
+	for (int y = 0; y < mapRows; ++y) {
+		for (int x = 0; x < mapColumns; ++x) {
+			int index = source[y * mapColumns + x];
+			if (index >= Ground0 && index <= Ground2) {
+				positions[boxCounter] = vec3(x * tileWidth, y * tileHeight, 0);
+				++boxCounter;
+			}
+		}
+	}
+	
+	count = boxCounter;
 }
 
 void drawSingleTile(Kore::Graphics2::Graphics2* g2, Kore::vec3 cameraPosition, Kore::vec3 tilePosition, int tileID, bool reverse) {

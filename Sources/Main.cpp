@@ -97,7 +97,7 @@ namespace {
 		Graphics4::swapBuffers();
 	}
 	
-	void SpawnPlayer(vec3 position, vec3 velocity) {
+	void spawnPlayer(vec3 position, vec3 velocity) {
 		player = new PhysicsObject();
 		player->SetPosition(position);
 		player->velocity = velocity;
@@ -107,12 +107,29 @@ namespace {
 		physics.AddObject(player);
 	}
 	
-	void SpawnCoins(vec3 position) {
+	void spawnCoins(vec3 position) {
 		coin = new PhysicsObject();
 		coin->SetPosition(position);
 		coin->sphereCollider.radius = tileWidth / 2;
 		coin->Mass = 5;
 		physics.AddObject(coin);
+	}
+	
+	void initBoxCollider() {
+		
+		Kore::vec3 boxColliders[mapRows * mapColumns];
+		int size;
+		getBoxColliders(boxColliders, size);
+		
+		for (int i = 0; i < size; ++i) {
+			vec3 pos = boxColliders[i];
+			
+			PhysicsObject* ground = new PhysicsObject();
+			ground->SetPosition(pos);
+			ground->sphereCollider.radius = tileWidth / 2;
+			ground->Mass = 5;
+			physics.AddObject(ground);
+		}
 	}
 	
 	void keyDown(KeyCode code) {
@@ -175,9 +192,11 @@ int kore(int argc, char** argv) {
 	int posY;
 	getTilePosition(TileID::Stand, posX, posY);
 	playerPosition = vec3(posX, posY, 0);
-	SpawnPlayer(playerPosition, vec3(0, 0, 0));
+	spawnPlayer(playerPosition, vec3(0, 0, 0));
 	
-	SpawnCoins(coinPosition);
+	spawnCoins(coinPosition);
+	
+	initBoxCollider();
 
 	Kore::System::start();
 
