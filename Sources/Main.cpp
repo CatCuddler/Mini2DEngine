@@ -21,7 +21,6 @@ namespace {
 	
 	Status playerStatus = Status::Standing;
 	bool left, right, jump;
-	int jumpAnimaCount = 0;
 	
 	Graphics2::Graphics2* g2;
 	
@@ -34,25 +33,16 @@ namespace {
 		Graphics4::clear(Graphics4::ClearColorFlag);
 		
 		// Move character
-		if (left && playerPosX > 0 && !jump) {
+		if (left && playerPosX > 0 /*&& !jump*/) {
 			playerStatus = WalkingLeft;
 			playerPosX -= moveDistance;
-		} else if (right && playerPosX < mapColumns * tileWidth - tileWidth && !jump) {
+			jump = false;
+		} else if (right && playerPosX < mapColumns * tileWidth - tileWidth /*&& !jump*/) {
 			playerStatus = WalkingRight;
 			playerPosX += moveDistance;
+			jump = false;
 		} else if (jump) {
-			/*playerStatus = JumpingLeft;
-			
-			if (jumpAnimaCount > 10 * 3) {
-				playerPosY -= moveDistance;
-				playerPosX += moveDistance;
-			}
-			
-			if (jumpAnimaCount > 10 * 8) {
-				jumpAnimaCount = 0;
-				jump = false;
-			}
-			++jumpAnimaCount;*/
+			playerStatus = JumpingLeft;
 		} else {
 			playerStatus = Standing;
 		}

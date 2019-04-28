@@ -99,6 +99,7 @@ void animate(Status playerStatus, Graphics2::Graphics2* g2, int camX, int camY, 
 			break;
 		}
 		case Standing: {
+			//log(LogLevel::Info, "Standing");
 			int row = (int)(Stand / tilesetRows);
 			g2->drawScaledSubImage(image, Stand * tileWidth, row * tileHeight, tileWidth, tileHeight, posX - camX, posY - camY, tileWidth, tileHeight);
 			break;
