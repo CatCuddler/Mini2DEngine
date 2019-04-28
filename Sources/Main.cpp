@@ -35,18 +35,11 @@ namespace {
 	vec3 playerPosition = vec3(0, 0, 0);
 	vec3 cameraPosition = vec3(0, 0, 0);
 	
-	vec3 coinPosition = vec3(tileWidth, (mapRows - 2) * tileHeight, 0);
+//	vec3 coinPosition = vec3(tileWidth, (mapRows - 2) * tileHeight, 0);
 	
 	double startTime;
 	double lastTime;
 	
-	void printPosition() {
-		vec3 playerPosition = player->GetPosition();
-		log(LogLevel::Info, "playerPosition %f %f %f", playerPosition.x(), playerPosition.y(), playerPosition.z());
-		
-		log(LogLevel::Info, "coinPosition %f %f %f", coinPosition.x(), coinPosition.y(), coinPosition.z());
-	}
-
 	void update() {
 		double t = System::time() - startTime;
 		double deltaT = t - lastTime;
@@ -57,7 +50,7 @@ namespace {
 		Graphics4::clear(Graphics4::ClearColorFlag);
 		
 		playerPosition = player->GetPosition();
-		coinPosition = coin->GetPosition();
+//		coinPosition = coin->GetPosition();
 		
 		// Move character
 		if (left && playerPosition.x() > 0) {
@@ -81,7 +74,7 @@ namespace {
 		g2->begin();
 		drawTiles(g2, cameraPosition);
 		animate(playerStatus, g2, cameraPosition, playerPosition);
-		drawSingleTile(g2, cameraPosition, coinPosition, Dollar);
+//		drawSingleTile(g2, cameraPosition, coinPosition, Dollar);
 		
 		
 		// Debug: show bounding box
@@ -192,7 +185,7 @@ int kore(int argc, char** argv) {
 	playerPosition = vec3(posX, posY, 0);
 	spawnPlayer(playerPosition, vec3(0, 0, 0));
 	
-	spawnCoins(coinPosition);
+	//spawnCoins(coinPosition);
 	
 	initBoxCollider();
 
