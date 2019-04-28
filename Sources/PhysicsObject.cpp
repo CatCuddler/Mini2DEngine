@@ -156,9 +156,3 @@ void PhysicsObject::Integrate(float deltaT) {
 	Accumulator = vec3(0, 0, 0);
 }
 
-void PhysicsObject::UpdateMatrix() {
-	// Update the Mesh matrix
-	//Mesh->M = mat4::Translation(Position.x(), Position.y(), Position.z()) * mat4::Scale(0.2f, 0.2f, 0.2f);
-}
-
-

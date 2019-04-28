@@ -85,11 +85,7 @@ namespace {
 		
 		
 		// Debug: show bounding box
-		PhysicsObject** currentP = &physics.physicsObjects[0];
-		while (*currentP != nullptr) {
-			(*currentP)->drawBoundingBox(g2);
-			++currentP;
-		}
+		physics.DrawBoundingBox(g2);
 		
 		g2->end();
 
@@ -124,11 +120,13 @@ namespace {
 		for (int i = 0; i < size; ++i) {
 			vec3 pos = boxColliders[i];
 			
-			PhysicsObject* ground = new PhysicsObject();
-			ground->SetPosition(pos);
-			ground->sphereCollider.radius = tileWidth / 2;
-			ground->Mass = 5;
-			physics.AddObject(ground);
+			BoxCollider* boxCollider = new BoxCollider();
+			boxCollider->position = pos;
+			boxCollider->width = tileWidth;
+			boxCollider->height = tileHeight;
+			//boxCollider->sphereCollider.radius = tileWidth / 2;
+			//boxCollider->Mass = 5;
+			physics.AddObject(boxCollider);
 		}
 	}
 	

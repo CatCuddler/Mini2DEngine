@@ -4,7 +4,6 @@
 
 #include <Kore/Graphics1/Image.h>
 #include <Kore/Graphics5/Graphics.h>
-#include <Kore/Graphics2/Graphics.h>
 
 #include "Collision.h"
 #include "Settings.h"
@@ -53,12 +52,4 @@ public:
 	
 	// Handle the collision with another sphere (includes testing for intersection)
 	void HandleCollision(PhysicsObject* other, float deltaT);
-	
-	// Update the matrix of the mesh
-	void UpdateMatrix();
-	
-	void drawBoundingBox(Kore::Graphics2::Graphics2* g2) {
-		g2->drawRect(sphereCollider.center.x() - sphereCollider.radius, sphereCollider.center.y() - sphereCollider.radius, sphereCollider.radius * 2, sphereCollider.radius * 2);
-	}
-	
 };

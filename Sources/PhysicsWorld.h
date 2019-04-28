@@ -1,6 +1,8 @@
 #pragma once
 
 #include <Kore/Graphics4/Graphics.h>
+#include <Kore/Graphics2/Graphics.h>
+
 #include "Collision.h"
 
   class PhysicsObject;
@@ -9,11 +11,9 @@
 class PhysicsWorld {
 public:
 	
-	// The ground
-	BoxCollider** groundObjects;
-	
-	// Null terminated array of PhysicsObject pointers b
+	// Null terminated array
 	PhysicsObject** physicsObjects;
+	BoxCollider** boxColliders;
 	
 	PhysicsWorld();
 	
@@ -25,5 +25,7 @@ public:
 	
 	// Add an object to be simulated
 	void AddObject(PhysicsObject* po);
+	void AddObject(BoxCollider* bc);
 	
+	void DrawBoundingBox(Kore::Graphics2::Graphics2* g2);
 };
