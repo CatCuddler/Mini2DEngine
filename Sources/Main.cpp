@@ -19,28 +19,47 @@ namespace {
 	const int h = tileHeight * mapRows;
 	const int scale = 2;
 	
+	Status playerStatus = Status::Standing;
 	bool left, right, jump;
+	int jumpAnimaCount = 0;
 	
 	Graphics2::Graphics2* g2;
 	
 	const int moveDistance = 2;
 	int playerPosX = 0;
-	int playerPosY = 7 * tileHeight;
+	int playerPosY = 0;
 
 	void update() {
 		Graphics4::begin();
 		Graphics4::clear(Graphics4::ClearColorFlag);
 		
 		// Move character
-		if (left && playerPosX > 0) {
+		if (left && playerPosX > 0 && !jump) {
+			playerStatus = WalkingLeft;
 			playerPosX -= moveDistance;
-		} else if (right && playerPosX < mapColumns * tileWidth - tileWidth) {
+		} else if (right && playerPosX < mapColumns * tileWidth - tileWidth && !jump) {
+			playerStatus = WalkingRight;
 			playerPosX += moveDistance;
+		} else if (jump) {
+			/*playerStatus = JumpingLeft;
+			
+			if (jumpAnimaCount > 10 * 3) {
+				playerPosY -= moveDistance;
+				playerPosX += moveDistance;
+			}
+			
+			if (jumpAnimaCount > 10 * 8) {
+				jumpAnimaCount = 0;
+				jump = false;
+			}
+			++jumpAnimaCount;*/
+		} else {
+			playerStatus = Standing;
 		}
 
 		g2->begin();
 		drawTiles(g2, 0, 0);
-		animate(g2, 0, 0, playerPosX, playerPosY);
+		animate(playerStatus, g2, 0, 0, playerPosX, playerPosY);
 		g2->end();
 
 		Graphics4::end();
@@ -80,7 +99,7 @@ namespace {
 				right = false;
 				break;
 			case KeySpace:
-				jump = false;
+				//jump = false;
 				break;
 			default:
 				break;
@@ -96,9 +115,10 @@ int kore(int argc, char** argv) {
 	Keyboard::the()->KeyUp = keyUp;
 	
 	g2 = new Graphics2::Graphics2(w, h, false);
-	g2->setImageScaleQuality(Graphics2::Low);
+	//g2->setImageScaleQuality(Graphics2::Low);
 	
 	initTiles("tileset/map2.csv", "tileset/tileset2.png");
+	getTilePosition(TileID::Stand, playerPosX, playerPosY);
 
 	Kore::System::start();
 

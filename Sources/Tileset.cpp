@@ -70,24 +70,46 @@ void drawTiles(Graphics2::Graphics2* g2, int camX, int camY) {
 	}
 }
 
-void animate(Graphics2::Graphics2* g2, int camX, int camY, int posX, int posY) {
-	int row = (Walk0 / tilesetRows) - 1;
+void animate(Status playerStatus, Graphics2::Graphics2* g2, int camX, int camY, int posX, int posY) {
 	int column = animIndex;
 	
-	if (lastPlayerPosX < posX) {
-		// Walk right
-		g2->drawScaledSubImage(image, column * tileWidth, row * tileHeight, tileWidth, tileHeight, posX - camX, posY - camY, tileWidth, tileHeight);
-	} else if (lastPlayerPosX > posX) {
-		// Walk left
-		g2->drawScaledSubImage(image, (column + 1)  * tileWidth, row * tileHeight, -tileWidth, tileHeight, posX - camX, posY - camY, tileWidth, tileHeight);
-	} else {
-		// Stand
-		g2->drawScaledSubImage(image, 2 * tileWidth, row * tileHeight, tileWidth, tileHeight, posX - camX, posY - camY, tileWidth, tileHeight);
+	switch (playerStatus) {
+		case WalkingRight: {
+			//log(LogLevel::Info, "Walk right");
+			int row = (int)(Walk0 / tilesetRows);
+			g2->drawScaledSubImage(image, column * tileWidth, row * tileHeight, tileWidth, tileHeight, posX - camX, posY - camY, tileWidth, tileHeight);
+			break;
+		}
+		case WalkingLeft: {
+			//log(LogLevel::Info, "Walk left");
+			int row = (int)(Walk0 / tilesetRows);
+			g2->drawScaledSubImage(image, (column + 1)  * tileWidth, row * tileHeight, -tileWidth, tileHeight, posX - camX, posY - camY, tileWidth, tileHeight);
+			break;
+		}
+		case JumpingRight: {
+			//log(LogLevel::Info, "Jump right");
+			int row = (int)(Jump0 / tilesetRows);
+			g2->drawScaledSubImage(image, column * tileWidth, row * tileHeight, tileWidth, tileHeight, posX - camX, posY - camY, tileWidth, tileHeight);
+			break;
+		}
+		case JumpingLeft: {
+			//log(LogLevel::Info, "Jump left");
+			int row = (int)(Jump0 / tilesetRows);
+			g2->drawScaledSubImage(image, (column + 1) * tileWidth, row * tileHeight, -tileWidth, tileHeight, posX - camX, posY - camY, tileWidth, tileHeight);
+			break;
+		}
+		case Standing: {
+			int row = (int)(Stand / tilesetRows);
+			g2->drawScaledSubImage(image, Stand * tileWidth, row * tileHeight, tileWidth, tileHeight, posX - camX, posY - camY, tileWidth, tileHeight);
+			break;
+		}
+		default:
+			break;
 	}
 	
 	++animCount;
 	
-	if (animCount > 10) {
+	if (animCount > 20) {
 		animCount = 0;
 		++animIndex;
 		if (animIndex >= 8)
@@ -107,4 +129,16 @@ int getTileIndex(float px, float py) {
 	int x = px / tileWidth;
 	int y = py / tileHeight;
 	return y * mapColumns + x;
+}
+
+void getTilePosition(TileID tileID, int& posX, int& posY) {
+	for (int y = 0; y < mapRows; ++y) {
+		for (int x = 0; x < mapColumns; ++x) {
+			int index = source[y * mapColumns + x];
+			if (index == tileID) {
+				posX = x * tileWidth;
+				posY = y * tileHeight;
+			}
+		}
+	}
 }
