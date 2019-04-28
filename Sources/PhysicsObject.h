@@ -4,8 +4,10 @@
 
 #include <Kore/Graphics1/Image.h>
 #include <Kore/Graphics5/Graphics.h>
+#include <Kore/Graphics2/Graphics.h>
 
 #include "Collision.h"
+#include "Settings.h"
 
 // A physically simulated object
 class PhysicsObject {
@@ -20,7 +22,7 @@ public:
 	
 	void SetPosition(Kore::vec3 pos) {
 		position = pos;
-		Collider.center = pos;
+		Collider.center = pos + Kore::vec3(tileWidth/2, tileHeight/2, 0);
 	}
 	
 	Kore::vec3 GetPosition() {
@@ -51,5 +53,9 @@ public:
 	
 	// Update the matrix of the mesh
 	void UpdateMatrix();
+	
+	void drawBoundingBox(Kore::Graphics2::Graphics2* g2) {
+		g2->drawRect(Collider.center.x(), Collider.center.y(), 1, 1);
+	}
 	
 };

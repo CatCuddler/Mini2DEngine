@@ -59,7 +59,7 @@ void PhysicsObject::HandleCollision(PhysicsObject* other, float deltaT) {
 	// Check if we are colliding with the plane
 	if (Collider.IntersectsWith(other->Collider)) {
 		
-		// Kore::log(Info, "Intersection");
+		//Kore::log(Info, "Intersection");
 		
 		float restitution = 0.8f;
 		
@@ -78,7 +78,7 @@ void PhysicsObject::HandleCollision(PhysicsObject* other, float deltaT) {
 		float penetrationDepth = -Collider.PenetrationDepth(other->Collider);
 		
 		// We share the position change equally
-		SetPosition(position + collisionNormal * penetrationDepth *0.5f);
+		SetPosition(position + collisionNormal * penetrationDepth * 0.5f);
 		other->SetPosition(other->position - collisionNormal * penetrationDepth * 0.5f);
 		
 		bool Result = Collider.IntersectsWith(other->Collider);
@@ -107,7 +107,7 @@ void PhysicsObject::Integrate(float deltaT) {
 	velocity += (Accumulator / Mass) * deltaT;
 	
 	// Multiply by a damping coefficient
-	float damping = 0.7f;
+	float damping = 0.9f;
 	velocity *= damping;
 	
 	// Clear the accumulator

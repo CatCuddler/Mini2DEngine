@@ -29,12 +29,23 @@ namespace {
 	
 	PhysicsWorld physics;
 	PhysicsObject* player;
+	PhysicsObject* coin;
 	
 	const int moveDistance = 10;
-	vec3 playerPosition;
+	vec3 playerPosition = vec3(0, 0, 0);
+	vec3 cameraPosition = vec3(0, 0, 0);
+	
+	vec3 coinPosition = vec3(tileWidth, (mapRows - 2) * tileHeight, 0);
 	
 	double startTime;
 	double lastTime;
+	
+	void printPosition() {
+		vec3 playerPosition = player->GetPosition();
+		log(LogLevel::Info, "playerPosition %f %f %f", playerPosition.x(), playerPosition.y(), playerPosition.z());
+		
+		log(LogLevel::Info, "coinPosition %f %f %f", coinPosition.x(), coinPosition.y(), coinPosition.z());
+	}
 
 	void update() {
 		double t = System::time() - startTime;
@@ -46,6 +57,7 @@ namespace {
 		Graphics4::clear(Graphics4::ClearColorFlag);
 		
 		playerPosition = player->GetPosition();
+		coinPosition = coin->GetPosition();
 		
 		// Move character
 		if (left && playerPosition.x() > 0) {
@@ -67,8 +79,18 @@ namespace {
 		physics.Update(deltaT);
 
 		g2->begin();
-		drawTiles(g2, vec3(0, 0, 0));
-		animate(playerStatus, g2, vec3(0, 0, 0), playerPosition);
+		drawTiles(g2, cameraPosition);
+		animate(playerStatus, g2, cameraPosition, playerPosition);
+		drawSingleTile(g2, cameraPosition, coinPosition, Dollar);
+		
+		
+		// Debug: show bounding box
+		PhysicsObject** currentP = &physics.physicsObjects[0];
+		while (*currentP != nullptr) {
+			(*currentP)->drawBoundingBox(g2);
+			++currentP;
+		}
+		
 		g2->end();
 
 		Graphics4::end();
@@ -79,23 +101,18 @@ namespace {
 		player = new PhysicsObject();
 		player->SetPosition(position);
 		player->velocity = velocity;
-		player->Collider.radius = 0.2f;
+		player->Collider.radius = tileWidth / 2;
 		player->Mass = 5;
 		player->ApplyImpulse(velocity);
 		physics.AddObject(player);
 	}
 	
 	void SpawnCoins(vec3 position) {
-		PhysicsObject* coin = new PhysicsObject();
+		coin = new PhysicsObject();
 		coin->SetPosition(position);
-		coin->Collider.radius = 0.2f;
+		coin->Collider.radius = tileWidth / 2;
 		coin->Mass = 5;
 		physics.AddObject(coin);
-	}
-	
-	void printPosition() {
-		vec3 playerPosition = player->GetPosition();
-		log(LogLevel::Info, "%f %f %f", playerPosition.x(), playerPosition.y(), playerPosition.z());
 	}
 	
 	void keyDown(KeyCode code) {
@@ -158,6 +175,8 @@ int kore(int argc, char** argv) {
 	getTilePosition(TileID::Stand, posX, posY);
 	playerPosition = vec3(posX, posY, 0);
 	SpawnPlayer(playerPosition, vec3(0, 0, 0));
+	
+	SpawnCoins(coinPosition);
 
 	Kore::System::start();
 
