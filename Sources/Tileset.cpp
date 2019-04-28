@@ -8,6 +8,8 @@
 #include "Tileset.h"
 #include "Settings.h"
 
+using namespace Kore;
+
 namespace{
 	Graphics4::Texture* image;
 	
@@ -57,7 +59,7 @@ void initTiles(const char* csvFilePath, const char* tileFilePath) {
 	loadCsv(csvFilePath);
 }
 
-void drawTiles(Graphics2::Graphics2* g2, int camX, int camY) {
+void drawTiles(Graphics2::Graphics2* g2, vec3 cameraPosition) {
 	for (int y = 0; y < mapRows; ++y) {
 		for (int x = 0; x < mapColumns; ++x) {
 			int index = source[y * mapColumns + x];
@@ -65,43 +67,43 @@ void drawTiles(Graphics2::Graphics2* g2, int camX, int camY) {
 			int row = (int)(index / mapColumns);
 			int column = index % mapColumns;
 			
-			g2->drawScaledSubImage(image, column * tileWidth, row * tileHeight, tileWidth, tileHeight, x * tileWidth - camX, y * tileHeight - camY, tileWidth, tileHeight);
+			g2->drawScaledSubImage(image, column * tileWidth, row * tileHeight, tileWidth, tileHeight, x * tileWidth - cameraPosition.x(), y * tileHeight - cameraPosition.y(), tileWidth, tileHeight);
 		}
 	}
 }
 
-void animate(Status playerStatus, Graphics2::Graphics2* g2, int camX, int camY, int posX, int posY) {
+void animate(Status playerStatus, Graphics2::Graphics2* g2, vec3 cameraPosition, vec3 characterPosition) {
 	int column = animIndex;
 	
 	switch (playerStatus) {
 		case WalkingRight: {
 			//log(LogLevel::Info, "Walk right");
 			int row = (int)(Walk0 / tilesetRows);
-			g2->drawScaledSubImage(image, column * tileWidth, row * tileHeight, tileWidth, tileHeight, posX - camX, posY - camY, tileWidth, tileHeight);
+			g2->drawScaledSubImage(image, column * tileWidth, row * tileHeight, tileWidth, tileHeight, characterPosition.x() - cameraPosition.x(), characterPosition.y() - cameraPosition.y(), tileWidth, tileHeight);
 			break;
 		}
 		case WalkingLeft: {
 			//log(LogLevel::Info, "Walk left");
 			int row = (int)(Walk0 / tilesetRows);
-			g2->drawScaledSubImage(image, (column + 1)  * tileWidth, row * tileHeight, -tileWidth, tileHeight, posX - camX, posY - camY, tileWidth, tileHeight);
+			g2->drawScaledSubImage(image, (column + 1)  * tileWidth, row * tileHeight, -tileWidth, tileHeight, characterPosition.x() - cameraPosition.x(), characterPosition.y() - cameraPosition.y(), tileWidth, tileHeight);
 			break;
 		}
 		case JumpingRight: {
 			//log(LogLevel::Info, "Jump right");
 			int row = (int)(Jump0 / tilesetRows);
-			g2->drawScaledSubImage(image, column * tileWidth, row * tileHeight, tileWidth, tileHeight, posX - camX, posY - camY, tileWidth, tileHeight);
+			g2->drawScaledSubImage(image, column * tileWidth, row * tileHeight, tileWidth, tileHeight, characterPosition.x() - cameraPosition.x(), characterPosition.y() - cameraPosition.y(), tileWidth, tileHeight);
 			break;
 		}
 		case JumpingLeft: {
 			//log(LogLevel::Info, "Jump left");
 			int row = (int)(Jump0 / tilesetRows);
-			g2->drawScaledSubImage(image, (column + 1) * tileWidth, row * tileHeight, -tileWidth, tileHeight, posX - camX, posY - camY, tileWidth, tileHeight);
+			g2->drawScaledSubImage(image, (column + 1) * tileWidth, row * tileHeight, -tileWidth, tileHeight, characterPosition.x() - cameraPosition.x(), characterPosition.y() - cameraPosition.y(), tileWidth, tileHeight);
 			break;
 		}
 		case Standing: {
 			//log(LogLevel::Info, "Standing");
 			int row = (int)(Stand / tilesetRows);
-			g2->drawScaledSubImage(image, Stand * tileWidth, row * tileHeight, tileWidth, tileHeight, posX - camX, posY - camY, tileWidth, tileHeight);
+			g2->drawScaledSubImage(image, Stand * tileWidth, row * tileHeight, tileWidth, tileHeight, characterPosition.x() - cameraPosition.x(), characterPosition.y() - cameraPosition.y(), tileWidth, tileHeight);
 			break;
 		}
 		default:
@@ -117,8 +119,8 @@ void animate(Status playerStatus, Graphics2::Graphics2* g2, int camX, int camY, 
 			animIndex = 0;
 	}
 		
-	lastPlayerPosX = posX;
-	lastPlayerPosY = posY;
+	lastPlayerPosX = characterPosition.x();
+	lastPlayerPosY = characterPosition.y();
 }
 
 int getTileID(float px, float py) {

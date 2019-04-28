@@ -2,8 +2,6 @@
 
 #include <Kore/Graphics2/Graphics.h>
 
-using namespace Kore;
-
 enum Status {
 	Standing, WalkingLeft, WalkingRight, JumpingLeft, JumpingRight
 };
@@ -21,8 +19,8 @@ namespace {
 void loadCsv(const char* csvFile);
 
 void initTiles(const char* csvFile, const char* tileFile);
-void drawTiles(Graphics2::Graphics2* g2, int camX, int camY);
-void animate(Status playerStatus, Graphics2::Graphics2* g2, int camX, int camY, int posX, int posY);
+void drawTiles(Kore::Graphics2::Graphics2* g2, Kore::vec3 cameraPosition);
+void animate(Status playerStatus, Kore::Graphics2::Graphics2* g2, Kore::vec3 cameraPosition, Kore::vec3 characterPosition);
 
 int getTileID(float px, float py);
 int getTileIndex(float px, float py);
