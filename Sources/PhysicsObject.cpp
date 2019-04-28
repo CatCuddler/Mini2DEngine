@@ -106,8 +106,8 @@ void PhysicsObject::Integrate(float deltaT) {
 	// Derive a new Velocity based on the accumulated forces
 	velocity += (Accumulator / Mass) * deltaT;
 	
-	// Multiply by a damping coefficient (e.g. 0.98)
-	float damping = 0.98f;
+	// Multiply by a damping coefficient
+	float damping = 0.7f;
 	velocity *= damping;
 	
 	// Clear the accumulator

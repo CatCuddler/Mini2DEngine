@@ -58,6 +58,7 @@ namespace {
 			jump = false;
 		} else if (jump) {
 			playerStatus = JumpingLeft;
+			player->ApplyImpulse(vec3(0, -moveDistance, 0));
 		} else {
 			playerStatus = Standing;
 		}
@@ -67,7 +68,6 @@ namespace {
 
 		g2->begin();
 		drawTiles(g2, vec3(0, 0, 0));
-		//animate(playerStatus, g2, 0, 0, playerPosX + tileWidth, playerPosY);
 		animate(playerStatus, g2, vec3(0, 0, 0), playerPosition);
 		g2->end();
 
@@ -80,10 +80,7 @@ namespace {
 		player->SetPosition(position);
 		player->velocity = velocity;
 		player->Collider.radius = 0.2f;
-		
 		player->Mass = 5;
-		//player->Mesh = sphere;
-		
 		player->ApplyImpulse(velocity);
 		physics.AddObject(player);
 	}
