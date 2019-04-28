@@ -129,6 +129,7 @@ namespace {
 				jump = true;
 				break;
 			}
+			case KeyEscape:
 			case KeyQ:
 			case KeyReturn:
 				Kore::System::stop();

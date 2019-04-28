@@ -49,7 +49,7 @@ public:
 	void HandleCollision(const PlaneCollider& collider, float deltaT);
 	
 	// Handle the collision with the ground
-	void HandleCollision(BoxCollider* other, float deltaT);
+	void HandleCollision(BoxCollider* collider, float deltaT);
 	
 	// Handle the collision with another sphere (includes testing for intersection)
 	void HandleCollision(PhysicsObject* other, float deltaT);
@@ -58,7 +58,7 @@ public:
 	void UpdateMatrix();
 	
 	void drawBoundingBox(Kore::Graphics2::Graphics2* g2) {
-		g2->drawRect(sphereCollider.center.x(), sphereCollider.center.y(), 1, 1);
+		g2->drawRect(sphereCollider.center.x() - sphereCollider.radius, sphereCollider.center.y() - sphereCollider.radius, sphereCollider.radius * 2, sphereCollider.radius * 2);
 	}
 	
 };

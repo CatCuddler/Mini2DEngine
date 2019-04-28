@@ -54,39 +54,47 @@ void PhysicsObject::HandleCollision(const PlaneCollider& collider, float deltaT)
 	}
 }
 
-void PhysicsObject::HandleCollision(BoxCollider* other, float deltaT) {
-	// Check if we are colliding with other
-	/*if (Collider.IntersectsWith(other->Collider)) {
+void PhysicsObject::HandleCollision(BoxCollider* collider, float deltaT) {
+	// Check if we are colliding with the ground
+	if (sphereCollider.IntersectsWith(*collider)) {
 		
-		//Kore::log(Info, "Intersection");
-		
+		// Kore::log(Info, "Floor");
 		float restitution = 0.8f;
 		
-		vec3 collisionNormal = Collider.GetCollisionNormal(other->Collider);
+		// Calculate the separating velocity
+		vec3 collisionNormal = sphereCollider.GetCollisionNormal(*collider);
+		float separatingVelocity = -(collisionNormal * velocity);
 		
-		float separatingVelocity = -(other->velocity - velocity) * collisionNormal;
-		
-		// If we are already separating: Nothing to do
 		if (separatingVelocity < 0) return;
 		
+		// Calculate a new one, based on the old one and the restitution
 		float newSeparatingVelocity = -separatingVelocity * restitution;
 		
-		float deltaVelocity = newSeparatingVelocity - separatingVelocity;
 		
 		// Move the object out of the collider
-		float penetrationDepth = -Collider.PenetrationDepth(other->Collider);
+		float penetrationDepth = sphereCollider.PenetrationDepth(*collider);
+		//Position += collider.normal * -penetrationDepth;
+		//SetPosition(Position);
 		
-		// We share the position change equally
-		SetPosition(position + collisionNormal * penetrationDepth * 0.5f);
-		other->SetPosition(other->position - collisionNormal * penetrationDepth * 0.5f);
+		bool Result = sphereCollider.IntersectsWith(*collider);
 		
-		bool Result = Collider.IntersectsWith(other->Collider);
+		// Calculate the impulse
+		// The plane is immovable, so we have to move all the way
+		float deltaVelocity = newSeparatingVelocity - separatingVelocity;
 		
+		// If the object is very slow, assume resting contact
+		if (deltaVelocity > -1.5f) {
+			velocity.set(0, 0, 0);
+			position = vec3(position.x(), sphereCollider.radius /*- collider->d*/, position.z());
+			sphereCollider.center = position;
+			return;
+		}
+		
+		// Apply the impulse
 		vec3 impulse = collisionNormal * -deltaVelocity;
 		
-		ApplyImpulse(-impulse);
-		other->ApplyImpulse(impulse);
-	}*/
+		ApplyImpulse(impulse);
+	}
 }
 
 void PhysicsObject::HandleCollision(PhysicsObject* other, float deltaT) {
