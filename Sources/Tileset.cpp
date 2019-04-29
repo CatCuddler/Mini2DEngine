@@ -19,6 +19,8 @@ namespace{
 	int tilesetRows = -1;
 	int tilesetColumns = -1;
 	
+	Status lastPlayerStatus;
+	
 	void loadCsv(const char* csvFile) {
 		FileReader file(csvFile);
 		
@@ -108,7 +110,13 @@ void drawSingleTile(Kore::Graphics2::Graphics2* g2, Kore::vec3 cameraPosition, K
 		g2->drawScaledSubImage(image, (column + 1)  * tileWidth, row * tileHeight, -tileWidth, tileHeight, tilePosition.x() - cameraPosition.x(), tilePosition.y() - cameraPosition.y(), tileWidth, tileHeight);
 }
 
-void animate(Status playerStatus, Graphics2::Graphics2* g2, vec3 cameraPosition, vec3 characterPosition) {
+bool animate(Status playerStatus, Graphics2::Graphics2* g2, vec3 cameraPosition, vec3 characterPosition) {
+	if (playerStatus != lastPlayerStatus) {
+		animCount = 0;
+		animIndex = 0;
+		lastPlayerStatus = playerStatus;
+	}
+		
 	switch (playerStatus) {
 		case WalkingRight: {
 			//log(LogLevel::Info, "Walk right");
@@ -144,9 +152,12 @@ void animate(Status playerStatus, Graphics2::Graphics2* g2, vec3 cameraPosition,
 	if (animCount > 20) {
 		animCount = 0;
 		++animIndex;
-		if (animIndex >= 8)
+		if (animIndex >= 8) {
 			animIndex = 0;
+			return true;
+		}
 	}
+	return false;
 }
 
 int getTileID(float px, float py) {

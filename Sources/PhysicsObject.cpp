@@ -8,7 +8,6 @@ int PhysicsObject::currentID;
 PhysicsObject::PhysicsObject() {
 	Accumulator = vec3(0, 0, 0);
 	velocity = vec3(0, 0, 0);
-//	collider.radius = 0.1f;
 	collider.width = tileWidth;
 	collider.height = tileHeight;
 	id = ++currentID;
@@ -77,15 +76,14 @@ void PhysicsObject::HandleCollision(BoxCollider* boxCollider, float deltaT) {
 		// Calculate the impulse
 		// The ground is immovable, so we have to move all the way
 		float penetrationDepth = -collider.PenetrationDepth(*boxCollider);
-//		SetPosition(position + collisionNormal * -penetrationDepth);
+//		SetPosition(position + collisionNormal * penetrationDepth);
 		
 		//bool Result = sphereCollider.IntersectsWith(other->sphereCollider);
 		
 		// If the object is very slow, assume resting contact
-		if (deltaVelocity > -1.5f) {
+		if (deltaVelocity > -100) {
 			velocity.set(0, 0, 0);
-			//position = vec3(position.x(), sphereCollider.radius - collider.d, position.z());
-			//sphereCollider.center = position;
+			position = vec3(position.x(), position.y() + penetrationDepth, position.z());
 			return;
 		}
 		
@@ -96,11 +94,9 @@ void PhysicsObject::HandleCollision(BoxCollider* boxCollider, float deltaT) {
 }
 
 void PhysicsObject::HandleCollision(PhysicsObject* otherCollider, float deltaT) {
-	// Handle the collision between two spheres
+	// Handle the collision between two phsics objects
 	if (collider.IntersectsWith(otherCollider->collider)) {
-		
 		//Kore::log(Info, "Intersection");
-		
 		float restitution = 0.8f;
 		
 		vec3 collisionNormal = collider.GetCollisionNormal(otherCollider->collider);
