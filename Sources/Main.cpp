@@ -32,15 +32,30 @@ namespace {
 	PhysicsWorld physics;
 	PhysicsObject* player;
 	PhysicsObject** coins;
-	int coinNum;
+	int coinNum = 0;
+	int cointCollected = 0;
 	
 	const int velocity = 50;
 	const int jumpVelocity = 20;
 	vec3 playerPosition = vec3(0, 0, 0);
 	vec3 cameraPosition = vec3(0, 0, 0);
 	
+	vec3 inventoryPosition = vec3(0, 0, 0);
+	
 	double startTime;
 	double lastTime;
+	
+	bool collectCoins(vec3 playerPosition, vec3 coinPosition) {
+		
+		//int ID = getTileID(playerPosition.x(), playerPosition.y());
+		//log(LogLevel::Info, "%i", ID);
+		
+		if ((playerPosition - coinPosition).getLength() < 20) {
+			++cointCollected;
+			return true;
+		}
+		return false;
+	}
 	
 	void changeAnimation(Status anim) {
 		if (!jumpAnim) {
@@ -90,7 +105,18 @@ namespace {
 		physics.Update(deltaT);
 
 		g2->begin();
+		// Draw background
 		drawTiles(g2, cameraPosition);
+		
+		// Draw coins
+		for (int i = 0; i < coinNum; i++) {
+			vec3 pos = coins[i]->GetPosition();
+			drawSingleTile(g2, cameraPosition, pos, TileID::Dollar);
+			
+			if (collectCoins(playerPosition, pos))
+				coins[i]->SetPosition(inventoryPosition);
+		}
+		
 		int cycleFinished = animate(playerStatus, g2, cameraPosition, playerPosition);
 		if (cycleFinished == 8) {
 			jumpAnim = false;
@@ -99,14 +125,6 @@ namespace {
 		if (jumpAnim) {
 			if (cycleFinished == 3) player->ApplyImpulse(vec3(0, -1.6*jumpVelocity, 0));
 			++prepareToJump;
-		}
-		
-		// Draw coins
-		PhysicsObject** coin = &coins[0];
-		for (int i = 0; i < coinNum; i++) {
-			vec3 pos = (*coin)->GetPosition();
-			drawSingleTile(g2, cameraPosition, pos, TileID::Dollar);
-			++coin;
 		}
 		
 		if (debug) {
@@ -144,7 +162,7 @@ namespace {
 			coin->SetPosition(coinPositions[i]);
 			coin->Mass = 5;
 			coins[i] = coin;
-			physics.AddObject(coin);
+			//physics.AddObject(coin);
 		}
 	}
 	
