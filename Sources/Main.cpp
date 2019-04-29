@@ -37,10 +37,15 @@ namespace {
 	
 	const int velocity = 50;
 	const int jumpVelocity = 20;
+	
 	vec3 playerPosition = vec3(0, 0, 0);
 	vec3 cameraPosition = vec3(0, 0, 0);
-	
 	vec3 inventoryPosition = vec3(0, 0, 0);
+	
+	Kravur* font14;
+	Kravur* font24;
+	Kravur* font34;
+	Kravur* font44;
 	
 	double startTime;
 	double lastTime;
@@ -61,6 +66,14 @@ namespace {
 		if (!jumpAnim) {
 			playerStatus = anim;
 		}
+	}
+	
+	void drawGUI(const char* text) {
+		if (text != nullptr) {
+			g2->drawString(text, 10, tileHeight);
+		}
+		
+		g2->setColor(Graphics1::Color::White);
 	}
 	
 	void update() {
@@ -113,8 +126,9 @@ namespace {
 			vec3 pos = coins[i]->GetPosition();
 			drawSingleTile(g2, cameraPosition, pos, TileID::Dollar);
 			
-			if (collectCoins(playerPosition, pos))
-				coins[i]->SetPosition(inventoryPosition);
+			if (collectCoins(playerPosition, pos)) {
+				coins[i]->SetPosition(inventoryPosition + vec3(cointCollected * 2, 0, 0));
+			}
 		}
 		
 		int cycleFinished = animate(playerStatus, g2, cameraPosition, playerPosition);
@@ -123,13 +137,20 @@ namespace {
 		}
 		
 		if (jumpAnim) {
-			if (cycleFinished == 3) player->ApplyImpulse(vec3(0, -1.6*jumpVelocity, 0));
+			if (cycleFinished == 3) player->ApplyImpulse(vec3(0, -1.6f * jumpVelocity, 0));
 			++prepareToJump;
 		}
 		
 		if (debug) {
 			// Debug: show bounding box
 			physics.DrawBoundingBox(g2);
+		}
+		
+		// Draw GUI
+		if (cointCollected > 0) {
+			char coinText[42];
+			sprintf(coinText, "Coins: %i", cointCollected);
+			drawGUI(coinText);
 		}
 		
 		g2->end();
@@ -234,6 +255,15 @@ int kore(int argc, char** argv) {
 	
 	g2 = new Graphics2::Graphics2(width, height, false);
 	//g2->setImageScaleQuality(Graphics2::Low);
+	
+	font14 = Kravur::load("Fonts/arial", FontStyle(), 14);
+	font24 = Kravur::load("Fonts/arial", FontStyle(), 24);
+	font34 = Kravur::load("Fonts/arial", FontStyle(), 34);
+	font44 = Kravur::load("Fonts/arial", FontStyle(), 44);
+	
+	g2->setFont(font14);
+	g2->setFontColor(Graphics1::Color::White);
+	g2->setFontSize(14);
 	
 	initTiles("tileset/map2.csv", "tileset/tileset2.png");
 	spawnPlayer();
