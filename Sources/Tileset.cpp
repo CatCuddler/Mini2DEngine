@@ -110,11 +110,15 @@ void drawSingleTile(Kore::Graphics2::Graphics2* g2, Kore::vec3 cameraPosition, K
 		g2->drawScaledSubImage(image, (column + 1)  * tileWidth, row * tileHeight, -tileWidth, tileHeight, tilePosition.x() - cameraPosition.x(), tilePosition.y() - cameraPosition.y(), tileWidth, tileHeight);
 }
 
-bool animate(Status playerStatus, Graphics2::Graphics2* g2, vec3 cameraPosition, vec3 characterPosition) {
+int animate(Status playerStatus, Graphics2::Graphics2* g2, vec3 cameraPosition, vec3 characterPosition) {
 	if (playerStatus != lastPlayerStatus) {
 		animCount = 0;
 		animIndex = 0;
 		lastPlayerStatus = playerStatus;
+	}
+	
+	if (animIndex >= 8) {
+		animIndex = 0;
 	}
 		
 	switch (playerStatus) {
@@ -152,12 +156,8 @@ bool animate(Status playerStatus, Graphics2::Graphics2* g2, vec3 cameraPosition,
 	if (animCount > 20) {
 		animCount = 0;
 		++animIndex;
-		if (animIndex >= 8) {
-			animIndex = 0;
-			return true;
-		}
 	}
-	return false;
+	return animIndex;
 }
 
 int getTileID(float px, float py) {

@@ -24,7 +24,8 @@ namespace {
 	
 	Status playerStatus = Status::Standing;
 	bool left, right, jump;
-	bool lastDirectionLeft = false;
+	bool jumpAnim = false;
+	int prepareToJump = 0;
 	
 	Graphics2::Graphics2* g2;
 	
@@ -34,11 +35,18 @@ namespace {
 	int coinNum;
 	
 	const int velocity = 50;
+	const int jumpVelocity = 20;
 	vec3 playerPosition = vec3(0, 0, 0);
 	vec3 cameraPosition = vec3(0, 0, 0);
 	
 	double startTime;
 	double lastTime;
+	
+	void changeAnimation(Status anim) {
+		if (!jumpAnim) {
+			playerStatus = anim;
+		}
+	}
 	
 	void update() {
 		double t = System::time() - startTime;
@@ -52,36 +60,45 @@ namespace {
 		playerPosition = player->GetPosition();
 		
 		// Move character
+		changeAnimation(Standing);
 		if (left && playerPosition.x() > 0) {
-			playerStatus = WalkingLeft;
-			player->ApplyImpulse(vec3(-velocity, 0, 0));
-			lastDirectionLeft = true;
+			changeAnimation(WalkingLeft);
+			if (jumpAnim) player->ApplyImpulse(vec3(-jumpVelocity, 0, 0));
+			else player->ApplyImpulse(vec3(-velocity, 0, 0));
 		} else if (right && playerPosition.x() < mapColumns * tileWidth - tileWidth) {
-			playerStatus = WalkingRight;
-			player->ApplyImpulse(vec3(velocity, 0, 0));
-			lastDirectionLeft = false;
-		} else if (jump) {
-			int jumpImpulse = 200;
-			if (lastDirectionLeft) {
-				playerStatus = JumpingLeft;
-				player->ApplyImpulse(vec3(-jumpImpulse, -jumpImpulse, 0));
-			} else {
-				playerStatus = JumpingRight;
-				player->ApplyImpulse(vec3(jumpImpulse, -jumpImpulse, 0));
-			}
-			jump = false;
-		} else {
-			playerStatus = Standing;
+			changeAnimation(WalkingRight);
+			if (jumpAnim) player->ApplyImpulse(vec3(jumpVelocity, 0, 0));
+			else player->ApplyImpulse(vec3(velocity, 0, 0));
 		}
+		
+		if (jump) {
+			if (left) {
+				changeAnimation(JumpingLeft);
+			} else if (right) {
+				changeAnimation(JumpingRight);
+			}
+			//player->ApplyImpulse(vec3(0, -500, 0));
+			
+			prepareToJump = 0;
+			jumpAnim = true;
+			jump = false;
+		}
+		
+		
 		
 		// Update the physics and render
 		physics.Update(deltaT);
 
 		g2->begin();
 		drawTiles(g2, cameraPosition);
-		bool cycleFinished = animate(playerStatus, g2, cameraPosition, playerPosition);
-		if (cycleFinished) {
-			jump = false;
+		int cycleFinished = animate(playerStatus, g2, cameraPosition, playerPosition);
+		if (cycleFinished == 8) {
+			jumpAnim = false;
+		}
+		
+		if (jumpAnim) {
+			if (cycleFinished == 3) player->ApplyImpulse(vec3(0, -1.6*jumpVelocity, 0));
+			++prepareToJump;
 		}
 		
 		// Draw coins
