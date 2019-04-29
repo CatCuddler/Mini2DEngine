@@ -62,7 +62,7 @@ void drawTiles(Graphics2::Graphics2* g2, vec3 cameraPosition) {
 	for (int y = 0; y < mapRows; ++y) {
 		for (int x = 0; x < mapColumns; ++x) {
 			int index = source[y * mapColumns + x];
-			if (index != TileID::Dollar) {
+			if (index != -1 && index != TileID::Dollar) {
 				drawSingleTile(g2, cameraPosition, vec3(x * tileWidth, y * tileHeight, 0), index);
 			}
 		}
@@ -74,7 +74,7 @@ void getBoxColliders(Kore::vec3* positions, int& count) {
 	for (int y = 0; y < mapRows; ++y) {
 		for (int x = 0; x < mapColumns; ++x) {
 			int index = source[y * mapColumns + x];
-			if (index >= Ground0 && index <= Ground2) {
+			if (index >= Ground0 && index <= Ground4) {
 				positions[boxCounter] = vec3(x * tileWidth, y * tileHeight, 0);
 				++boxCounter;
 			}

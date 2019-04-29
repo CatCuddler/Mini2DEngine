@@ -7,8 +7,9 @@ enum Status {
 };
 
 enum TileID {
-	Ground0 = 0, Ground1 = 1, Ground2 = 2,
-	Stand = 3, Dollar = 4,
+	Ground0 = 0, Ground1 = 1, Ground2 = 2, Ground3 = 3, Ground4 = 4,
+	Dollar = 5, Spikes = 6,
+	Stand = 9,
 	Walk0 = 10, Walk1 = 11, Walk2 = 12, Walk3 = 13, Walk4 = 14, Walk5 = 15, Walk6 = 16, Walk7 = 17,
 	Jump0 = 20, Jump1 = 21, Jump2 = 22, Jump3 = 23, Jump4 = 24, Jump5 = 25, Jump6 = 26, Jump7 = 27
 };

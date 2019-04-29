@@ -33,7 +33,7 @@ namespace {
 	PhysicsObject** coins;
 	int coinNum;
 	
-	const int velocity = 10;
+	const int velocity = 50;
 	vec3 playerPosition = vec3(0, 0, 0);
 	vec3 cameraPosition = vec3(0, 0, 0);
 	
@@ -111,7 +111,7 @@ namespace {
 		
 		
 		player = new PhysicsObject();
-		player->SetPosition(vec3(0, 0, 0));//(playerPosition);
+		player->SetPosition(playerPosition);
 		player->velocity = vec3(0, 0, 0);
 		player->Mass = 5;
 		physics.AddObject(player);

@@ -83,7 +83,6 @@ void PhysicsObject::HandleCollision(BoxCollider* boxCollider, float deltaT) {
 		// If the object is very slow, assume resting contact
 		if (deltaVelocity > -100) {
 			velocity.set(0, 0, 0);
-			position = vec3(position.x(), position.y() + penetrationDepth, position.z());
 			return;
 		}
 		
