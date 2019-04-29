@@ -1,6 +1,8 @@
 #pragma once
 
 namespace {
+	const int debug = true;
+	
 	const int tileWidth = 32;
 	const int tileHeight = 32;
 	

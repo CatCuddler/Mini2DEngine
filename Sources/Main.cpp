@@ -29,13 +29,11 @@ namespace {
 	
 	PhysicsWorld physics;
 	PhysicsObject* player;
-	PhysicsObject* coin;
+	PhysicsObject** coins;
 	
-	const int moveDistance = 10;
+	const int velocity = 10;
 	vec3 playerPosition = vec3(0, 0, 0);
 	vec3 cameraPosition = vec3(0, 0, 0);
-	
-//	vec3 coinPosition = vec3(tileWidth, (mapRows - 2) * tileHeight, 0);
 	
 	double startTime;
 	double lastTime;
@@ -50,20 +48,19 @@ namespace {
 		Graphics4::clear(Graphics4::ClearColorFlag);
 		
 		playerPosition = player->GetPosition();
-//		coinPosition = coin->GetPosition();
 		
 		// Move character
 		if (left && playerPosition.x() > 0) {
 			playerStatus = WalkingLeft;
-			player->ApplyImpulse(vec3(-moveDistance, 0, 0));
+			player->ApplyImpulse(vec3(-velocity, 0, 0));
 			jump = false;
 		} else if (right && playerPosition.x() < mapColumns * tileWidth - tileWidth) {
 			playerStatus = WalkingRight;
-			player->ApplyImpulse(vec3(moveDistance, 0, 0));
+			player->ApplyImpulse(vec3(velocity, 0, 0));
 			jump = false;
 		} else if (jump) {
 			playerStatus = JumpingLeft;
-			player->ApplyImpulse(vec3(0, -moveDistance, 0));
+			player->ApplyImpulse(vec3(0, -velocity, 0));
 		} else {
 			playerStatus = Standing;
 		}
@@ -74,11 +71,19 @@ namespace {
 		g2->begin();
 		drawTiles(g2, cameraPosition);
 		animate(playerStatus, g2, cameraPosition, playerPosition);
-//		drawSingleTile(g2, cameraPosition, coinPosition, Dollar);
 		
+		// Draw coins
+		PhysicsObject** coin = &coins[0];
+		while (*coin != nullptr) {
+			vec3 pos = (*coin)->GetPosition();
+			drawSingleTile(g2, cameraPosition, pos, TileID::Dollar);
+			++coin;
+		}
 		
-		// Debug: show bounding box
-		physics.DrawBoundingBox(g2);
+		if (debug) {
+			// Debug: show bounding box
+			physics.DrawBoundingBox(g2);
+		}
 		
 		g2->end();
 
@@ -96,18 +101,26 @@ namespace {
 		physics.AddObject(player);
 	}
 	
-	void spawnCoins(vec3 position) {
-		coin = new PhysicsObject();
-		coin->SetPosition(position);
-		coin->sphereCollider.radius = tileWidth / 2;
-		coin->Mass = 5;
-		physics.AddObject(coin);
+	void spawnCoins() {
+		int size;
+		Kore::vec3 coinPositions[mapRows * mapColumns];
+		getTiles(TileID::Dollar, coinPositions, size);
+		
+		coins = new PhysicsObject*[size];
+		for (int i = 0; i < size; i++) {
+			PhysicsObject* coin = new PhysicsObject();
+			coin->SetPosition(coinPositions[i]);
+			coin->sphereCollider.radius = tileWidth / 2;
+			coin->Mass = 10;
+			
+			coins[i] = coin;
+			physics.AddObject(coin);
+		}
 	}
 	
 	void initBoxCollider() {
-		
-		Kore::vec3 boxColliders[mapRows * mapColumns];
 		int size;
+		Kore::vec3 boxColliders[mapRows * mapColumns];
 		getBoxColliders(boxColliders, size);
 		
 		for (int i = 0; i < size; ++i) {
@@ -185,7 +198,7 @@ int kore(int argc, char** argv) {
 	playerPosition = vec3(posX, posY, 0);
 	spawnPlayer(playerPosition, vec3(0, 0, 0));
 	
-	//spawnCoins(coinPosition);
+	spawnCoins();
 	
 	initBoxCollider();
 

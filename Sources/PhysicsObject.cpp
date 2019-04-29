@@ -57,7 +57,7 @@ void PhysicsObject::HandleCollision(const PlaneCollider& collider, float deltaT)
 void PhysicsObject::HandleCollision(BoxCollider* collider, float deltaT) {
 	// Check if we are colliding with the ground
 	if (sphereCollider.IntersectsWith(*collider)) {
-		Kore::log(Info, "Floor");
+		//Kore::log(Info, "Floor");
 		float restitution = 0.8f;
 		
 		// Calculate the separating velocity

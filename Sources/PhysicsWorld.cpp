@@ -14,7 +14,7 @@ namespace {
 PhysicsWorld::PhysicsWorld() {
 	physicsObjects = new PhysicsObject*[arraySize];
 	boxColliders = new BoxCollider*[arraySize];
-	for (int i = 0; i < 100; i++) {
+	for (int i = 0; i < arraySize; i++) {
 		physicsObjects[i] = nullptr;
 		boxColliders[i] = nullptr;
 	}

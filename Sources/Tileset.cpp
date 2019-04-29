@@ -60,7 +60,9 @@ void drawTiles(Graphics2::Graphics2* g2, vec3 cameraPosition) {
 	for (int y = 0; y < mapRows; ++y) {
 		for (int x = 0; x < mapColumns; ++x) {
 			int index = source[y * mapColumns + x];
-			drawSingleTile(g2, cameraPosition, vec3(x * tileWidth, y * tileHeight, 0), index);
+			if (index != TileID::Dollar) {
+				drawSingleTile(g2, cameraPosition, vec3(x * tileWidth, y * tileHeight, 0), index);
+			}
 		}
 	}
 }
@@ -78,6 +80,22 @@ void getBoxColliders(Kore::vec3* positions, int& count) {
 	}
 	
 	count = boxCounter;
+}
+
+void getTiles(TileID ID, Kore::vec3* positions, int& size) {
+	int tileCounter = 0;
+	for (int y = 0; y < mapRows; ++y) {
+		for (int x = 0; x < mapColumns; ++x) {
+			int index = source[y * mapColumns + x];
+			if (index == ID) {
+				positions[tileCounter] = vec3(x * tileWidth, y * tileHeight, 0);
+				++tileCounter;
+			}
+		}
+	}
+	
+	size = tileCounter;
+	
 }
 
 void drawSingleTile(Kore::Graphics2::Graphics2* g2, Kore::vec3 cameraPosition, Kore::vec3 tilePosition, int tileID, bool reverse) {

@@ -20,7 +20,8 @@ namespace {
 
 
 void initTiles(const char* csvFile, const char* tileFile);
-void getBoxColliders(Kore::vec3* positions, int& count);
+void getBoxColliders(Kore::vec3* positions, int& size);
+void getTiles(TileID ID, Kore::vec3* positions, int& size);
 void drawTiles(Kore::Graphics2::Graphics2* g2, Kore::vec3 cameraPosition);
 void drawSingleTile(Kore::Graphics2::Graphics2* g2, Kore::vec3 cameraPosition, Kore::vec3 tilePosition, int tileID, bool reverse = false);
 void animate(Status playerStatus, Kore::Graphics2::Graphics2* g2, Kore::vec3 cameraPosition, Kore::vec3 characterPosition);
