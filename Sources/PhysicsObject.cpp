@@ -8,11 +8,13 @@ int PhysicsObject::currentID;
 PhysicsObject::PhysicsObject() {
 	Accumulator = vec3(0, 0, 0);
 	velocity = vec3(0, 0, 0);
-	collider.radius = 0.1f;
+//	collider.radius = 0.1f;
+	collider.width = tileWidth;
+	collider.height = tileHeight;
 	id = ++currentID;
 }
 
-void PhysicsObject::HandleCollision(const PlaneCollider& planeCollider, float deltaT) {
+/*void PhysicsObject::HandleCollision(const PlaneCollider& planeCollider, float deltaT) {
 	// Check if we are colliding with the plane
 	if (collider.IntersectsWith(planeCollider)) {
 		
@@ -52,10 +54,10 @@ void PhysicsObject::HandleCollision(const PlaneCollider& planeCollider, float de
 		
 		ApplyImpulse(impulse);
 	}
-}
+}*/
 
 void PhysicsObject::HandleCollision(BoxCollider* boxCollider, float deltaT) {
-	// Check if we are colliding with the ground
+	// Handle the collision between two boxes
 	if (collider.IntersectsWith(*boxCollider)) {
 		//Kore::log(Info, "Floor");
 		float restitution = 0.8f;
@@ -94,7 +96,7 @@ void PhysicsObject::HandleCollision(BoxCollider* boxCollider, float deltaT) {
 }
 
 void PhysicsObject::HandleCollision(PhysicsObject* otherCollider, float deltaT) {
-	// Handle the collision with another sphere
+	// Handle the collision between two spheres
 	if (collider.IntersectsWith(otherCollider->collider)) {
 		
 		//Kore::log(Info, "Intersection");

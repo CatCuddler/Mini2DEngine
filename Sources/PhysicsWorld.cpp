@@ -33,26 +33,24 @@ void PhysicsWorld::Update(float deltaT) {
 		++currentP;
 	}
 	
-	// Check for collisions with the plane
-	/*currentP = &physicsObjects[0];
+	// Check for collisions with the ground
+	currentP = &physicsObjects[0];
 	while (*currentP != nullptr) {
-		//(*currentP)->HandleCollision(plane, deltaT);
+		BoxCollider** bc = &boxColliders[0];
+		while (*bc != nullptr) {
+			(*currentP)->HandleCollision(*bc, deltaT);
+			++bc;
+		}
 		++currentP;
-	}*/
+	}
 	
-	// Check for collisions with the other objects
+	// Check for collisions with the other physics objects
 	currentP = &physicsObjects[0];
 	while (*currentP != nullptr) {
 		PhysicsObject** currentCollision = currentP + 1;
 		while (*currentCollision != nullptr) {
 			(*currentP)->HandleCollision(*currentCollision, deltaT);
 			++currentCollision;
-		}
-		
-		BoxCollider** bc = &boxColliders[0];
-		while (*bc != nullptr) {
-			(*currentP)->HandleCollision(*bc, deltaT);
-			++bc;
 		}
 		
 		++currentP;
@@ -83,28 +81,21 @@ void PhysicsWorld::AddObject(BoxCollider* bc) {
 }
 
 void PhysicsWorld::DrawBoundingBox(Kore::Graphics2::Graphics2* g2) {
-	
+	g2->setColor(Graphics1::Color::Red);
 	PhysicsObject** po = &physicsObjects[0];
 	while (*po != nullptr) {
-		g2->setColor(Graphics1::Color::Red);
-		
-		vec3 center = (*po)->collider.center;
-		float radius = (*po)->collider.radius;
-		g2->drawRect(center.x() - radius, center.y() - radius, radius * 2, radius * 2);
-	
+		vec3 position = (*po)->collider.position;
+		g2->drawRect(position.x(), position.y(), (*po)->collider.width, (*po)->collider.height);
 		++po;
 	}
 	
+	g2->setColor(Graphics1::Color::Yellow);
 	BoxCollider** bc = &boxColliders[0];
 	while (*bc != nullptr) {
-		g2->setColor(Graphics1::Color::White);
-		
 		vec3 position = (*bc)->position;
-		float width = (*bc)->width;
-		float height = (*bc)->height;
-		g2->drawRect(position.x(), position.y(), width, height);
-		
+		g2->drawRect(position.x(), position.y(), (*bc)->width, (*bc)->height);
 		++bc;
 	}
 	
+	g2->setColor(Graphics1::Color::White);
 }

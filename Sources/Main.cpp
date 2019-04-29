@@ -95,7 +95,6 @@ namespace {
 		player = new PhysicsObject();
 		player->SetPosition(position);
 		player->velocity = velocity;
-		player->collider.radius = tileWidth / 2;
 		player->Mass = 5;
 		player->ApplyImpulse(velocity);
 		physics.AddObject(player);
@@ -110,9 +109,7 @@ namespace {
 		for (int i = 0; i < size; i++) {
 			PhysicsObject* coin = new PhysicsObject();
 			coin->SetPosition(coinPositions[i]);
-			coin->collider.radius = tileWidth / 2;
 			coin->Mass = 5;
-			
 			coins[i] = coin;
 			physics.AddObject(coin);
 		}
@@ -124,14 +121,10 @@ namespace {
 		getBoxColliders(boxColliders, size);
 		
 		for (int i = 0; i < size; ++i) {
-			vec3 pos = boxColliders[i];
-			
 			BoxCollider* boxCollider = new BoxCollider();
-			boxCollider->position = pos;
+			boxCollider->position = boxColliders[i];
 			boxCollider->width = tileWidth;
 			boxCollider->height = tileHeight;
-			//boxCollider->sphereCollider.radius = tileWidth / 2;
-			//boxCollider->Mass = 5;
 			physics.AddObject(boxCollider);
 		}
 	}
