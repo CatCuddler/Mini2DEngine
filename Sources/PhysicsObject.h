@@ -21,7 +21,7 @@ public:
 	
 	void SetPosition(Kore::vec3 pos) {
 		position = pos;
-		sphereCollider.center = pos + Kore::vec3(tileWidth/2, tileHeight/2, 0);
+		collider.center = pos + Kore::vec3(tileWidth/2, tileHeight/2, 0);
 	}
 	
 	Kore::vec3 GetPosition() {
@@ -31,7 +31,7 @@ public:
 	// Force accumulator
 	Kore::vec3 Accumulator;
 	
-	SphereCollider sphereCollider;
+	SphereCollider collider;
 	
 	PhysicsObject();
 	

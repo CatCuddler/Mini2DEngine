@@ -88,8 +88,8 @@ void PhysicsWorld::DrawBoundingBox(Kore::Graphics2::Graphics2* g2) {
 	while (*po != nullptr) {
 		g2->setColor(Graphics1::Color::Red);
 		
-		vec3 center = (*po)->sphereCollider.center;
-		float radius = (*po)->sphereCollider.radius;
+		vec3 center = (*po)->collider.center;
+		float radius = (*po)->collider.radius;
 		g2->drawRect(center.x() - radius, center.y() - radius, radius * 2, radius * 2);
 	
 		++po;

@@ -95,7 +95,7 @@ namespace {
 		player = new PhysicsObject();
 		player->SetPosition(position);
 		player->velocity = velocity;
-		player->sphereCollider.radius = tileWidth / 2;
+		player->collider.radius = tileWidth / 2;
 		player->Mass = 5;
 		player->ApplyImpulse(velocity);
 		physics.AddObject(player);
@@ -110,8 +110,8 @@ namespace {
 		for (int i = 0; i < size; i++) {
 			PhysicsObject* coin = new PhysicsObject();
 			coin->SetPosition(coinPositions[i]);
-			coin->sphereCollider.radius = tileWidth / 2;
-			coin->Mass = 10;
+			coin->collider.radius = tileWidth / 2;
+			coin->Mass = 5;
 			
 			coins[i] = coin;
 			physics.AddObject(coin);

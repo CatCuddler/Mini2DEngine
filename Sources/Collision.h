@@ -77,7 +77,7 @@ public:
 		int xMin1 = center.x() - radius;
 		int xMax1 = center.x() + radius;
 		int yMax1 = center.y() + radius;
-		int yMin1 = center.y();
+		int yMin1 = center.y() - radius;
 		
 		// AABB 2
 		int xMin2 = other.position.x();
