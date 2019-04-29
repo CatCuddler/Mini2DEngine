@@ -24,8 +24,6 @@ namespace {
 	
 	Status playerStatus = Status::Standing;
 	bool left, right, jump;
-	bool jumpAnim = false;
-	int prepareToJump = 0;
 	
 	Graphics2::Graphics2* g2;
 	
@@ -36,7 +34,6 @@ namespace {
 	int cointCollected = 0;
 	
 	const int velocity = 50;
-	const int jumpVelocity = 20;
 	
 	vec3 playerPosition = vec3(0, 0, 0);
 	vec3 cameraPosition = vec3(0, 0, 0);
@@ -51,10 +48,6 @@ namespace {
 	double lastTime;
 	
 	bool collectCoins(vec3 playerPosition, vec3 coinPosition) {
-		
-		//int ID = getTileID(playerPosition.x(), playerPosition.y());
-		//log(LogLevel::Info, "%i", ID);
-		
 		if ((playerPosition - coinPosition).getLength() < 20) {
 			++cointCollected;
 			return true;
@@ -62,10 +55,19 @@ namespace {
 		return false;
 	}
 	
-	void changeAnimation(Status anim) {
-		if (!jumpAnim) {
-			playerStatus = anim;
+	bool feetOnTheGround() {
+		BoxCollider** bc = &physics.boxColliders[0];
+		while (*bc != nullptr) {
+			vec3 pos = (*bc)->position;
+			if ((playerPosition - pos).getLength() <= tileHeight + 5) {
+				//log(LogLevel::Info, "On the ground");
+				return true;
+			}
+			++bc;
 		}
+		
+		//log(LogLevel::Info, "Not the ground");
+		return false;
 	}
 	
 	void drawGUI(const char* text) {
@@ -87,37 +89,34 @@ namespace {
 		
 		playerPosition = player->GetPosition();
 		
-		// Move character
-		changeAnimation(Standing);
-		if (left && playerPosition.x() > 0) {
-			changeAnimation(WalkingLeft);
-			if (jumpAnim) player->ApplyImpulse(vec3(-jumpVelocity, 0, 0));
-			else player->ApplyImpulse(vec3(-velocity, 0, 0));
-		} else if (right && playerPosition.x() < mapColumns * tileWidth - tileWidth) {
-			changeAnimation(WalkingRight);
-			if (jumpAnim) player->ApplyImpulse(vec3(jumpVelocity, 0, 0));
-			else player->ApplyImpulse(vec3(velocity, 0, 0));
-		}
-		
-		if (jump) {
-			if (left) {
-				changeAnimation(JumpingLeft);
-			} else if (right) {
-				changeAnimation(JumpingRight);
+		// Move player only if the feet are on the ground
+		if (feetOnTheGround()) {
+			playerStatus = Standing;
+			if (left && playerPosition.x() > 0) {
+				playerStatus = WalkingLeft;
+				player->ApplyImpulse(vec3(-velocity, 0, 0));
+			} else if (right && playerPosition.x() < mapColumns * tileWidth - tileWidth) {
+				playerStatus = WalkingRight;
+				player->ApplyImpulse(vec3(velocity, 0, 0));
 			}
-			//player->ApplyImpulse(vec3(0, -500, 0));
 			
-			prepareToJump = 0;
-			jumpAnim = true;
-			jump = false;
+			if (jump) {
+				if (left) {
+					playerStatus = JumpingLeft;
+				} else if (right) {
+					playerStatus = JumpingRight;
+				}
+				player->ApplyImpulse(vec3(0, -600, 0));
+				
+				jump = false;
+			}
 		}
-		
-		
 		
 		// Update the physics and render
 		physics.Update(deltaT);
-
+		
 		g2->begin();
+		
 		// Draw background
 		drawTiles(g2, cameraPosition);
 		
@@ -131,15 +130,7 @@ namespace {
 			}
 		}
 		
-		int cycleFinished = animate(playerStatus, g2, cameraPosition, playerPosition);
-		if (cycleFinished == 8) {
-			jumpAnim = false;
-		}
-		
-		if (jumpAnim) {
-			if (cycleFinished == 3) player->ApplyImpulse(vec3(0, -1.6f * jumpVelocity, 0));
-			++prepareToJump;
-		}
+		animate(playerStatus, g2, cameraPosition, playerPosition);
 		
 		if (debug) {
 			// Debug: show bounding box
@@ -154,7 +145,7 @@ namespace {
 		}
 		
 		g2->end();
-
+		
 		Graphics4::end();
 		Graphics4::swapBuffers();
 	}
@@ -164,7 +155,6 @@ namespace {
 		int posY;
 		getTilePosition(TileID::Stand, posX, posY);
 		playerPosition = vec3(posX, posY, 0);
-		
 		
 		player = new PhysicsObject();
 		player->SetPosition(playerPosition);
@@ -236,7 +226,7 @@ namespace {
 				right = false;
 				break;
 			case KeySpace:
-				//jump = false;
+				jump = false;
 				break;
 			default:
 				break;
@@ -269,8 +259,8 @@ int kore(int argc, char** argv) {
 	spawnPlayer();
 	spawnCoins();
 	initBoxColliders();
-
+	
 	Kore::System::start();
-
+	
 	return 0;
 }

@@ -26,7 +26,7 @@ void getTiles(TileID ID, Kore::vec3* positions, int& size);
 void drawTiles(Kore::Graphics2::Graphics2* g2, Kore::vec3 cameraPosition);
 void drawSingleTile(Kore::Graphics2::Graphics2* g2, Kore::vec3 cameraPosition, Kore::vec3 tilePosition, int tileID, bool reverse = false);
 // Return true if animation cycle is complete
-int animate(Status playerStatus, Kore::Graphics2::Graphics2* g2, Kore::vec3 cameraPosition, Kore::vec3 characterPosition);
+bool animate(Status playerStatus, Kore::Graphics2::Graphics2* g2, Kore::vec3 cameraPosition, Kore::vec3 characterPosition);
 
 int getTileID(float px, float py);
 int getTileIndex(float px, float py);

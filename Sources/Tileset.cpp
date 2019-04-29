@@ -110,15 +110,11 @@ void drawSingleTile(Kore::Graphics2::Graphics2* g2, Kore::vec3 cameraPosition, K
 		g2->drawScaledSubImage(image, (column + 1)  * tileWidth, row * tileHeight, -tileWidth, tileHeight, tilePosition.x() - cameraPosition.x(), tilePosition.y() - cameraPosition.y(), tileWidth, tileHeight);
 }
 
-int animate(Status playerStatus, Graphics2::Graphics2* g2, vec3 cameraPosition, vec3 characterPosition) {
+bool animate(Status playerStatus, Graphics2::Graphics2* g2, vec3 cameraPosition, vec3 characterPosition) {
 	if (playerStatus != lastPlayerStatus) {
 		animCount = 0;
 		animIndex = 0;
 		lastPlayerStatus = playerStatus;
-	}
-	
-	if (animIndex >= 8) {
-		animIndex = 0;
 	}
 		
 	switch (playerStatus) {
@@ -134,12 +130,12 @@ int animate(Status playerStatus, Graphics2::Graphics2* g2, vec3 cameraPosition, 
 		}
 		case JumpingRight: {
 			//log(LogLevel::Info, "Jump right");
-			drawSingleTile(g2, cameraPosition, characterPosition, Jump0 + animIndex);
+			drawSingleTile(g2, cameraPosition, characterPosition, Jump2 /*+ animIndex*/);
 			break;
 		}
 		case JumpingLeft: {
 			//log(LogLevel::Info, "Jump left");
-			drawSingleTile(g2, cameraPosition, characterPosition, Jump0 + animIndex, true);
+			drawSingleTile(g2, cameraPosition, characterPosition, Jump2 /*+ animIndex*/, true);
 			break;
 		}
 		case Standing: {
@@ -156,8 +152,12 @@ int animate(Status playerStatus, Graphics2::Graphics2* g2, vec3 cameraPosition, 
 	if (animCount > 20) {
 		animCount = 0;
 		++animIndex;
+		if (animIndex >= 8) {
+			animIndex = 0;
+			return true;
+		}
 	}
-	return animIndex;
+	return false;
 }
 
 int getTileID(float px, float py) {
