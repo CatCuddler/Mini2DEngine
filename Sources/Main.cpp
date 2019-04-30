@@ -103,10 +103,12 @@ namespace {
 			if (jump) {
 				if (left) {
 					playerStatus = JumpingLeft;
+					player->ApplyImpulse(vec3(-velocity, 0, 0));
 				} else if (right) {
 					playerStatus = JumpingRight;
+					player->ApplyImpulse(vec3(velocity, 0, 0));
 				}
-				player->ApplyImpulse(vec3(0, -600, 0));
+				player->ApplyImpulse(vec3(0, -700, 0));
 				
 				jump = false;
 			}
