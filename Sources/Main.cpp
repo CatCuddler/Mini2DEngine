@@ -56,17 +56,20 @@ namespace {
 	}
 	
 	bool feetOnTheGround() {
+		// Calculate max distance of the tiles when they are beside each other
+		vec3 pos1 = vec3(0, 0, 0);
+		vec3 pos2 = vec3(tileWidth/2, tileHeight, 0);
+		float dist = (pos1 - pos2).getLength();
+		
 		BoxCollider** bc = &physics.boxColliders[0];
 		while (*bc != nullptr) {
 			vec3 pos = (*bc)->position;
-			if ((playerPosition - pos).getLength() <= tileHeight + 5) {
-				//log(LogLevel::Info, "On the ground");
+			if ((playerPosition - pos).getLength() <= dist) {
+				log(LogLevel::Info, "On the ground");
 				return true;
 			}
 			++bc;
 		}
-		
-		//log(LogLevel::Info, "Not the ground");
 		return false;
 	}
 	
