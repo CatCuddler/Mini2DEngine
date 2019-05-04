@@ -31,12 +31,10 @@ public:
 	
 	// Return true iff there is an intersection with the other box
 	bool IntersectsWith(const BoxCollider& other) {
-		if(position.x() < other.position.x() + other.width &&
-		   position.x() + width > other.position.x() &&
-		   position.y() < other.position.y() + other.height &&
-		   position.y() + height > other.position.y()) return true;
-	 
-		return false;
+		return position.x() < other.position.x() + other.width &&
+		position.x() + width > other.position.x() &&
+		position.y() < other.position.y() + other.height &&
+		position.y() + height > other.position.y();
 	}
 	
 };
