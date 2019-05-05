@@ -22,8 +22,11 @@ namespace {
 	const int height = tileHeight * mapRows;
 	const int scale = 2;
 	
-	Status playerStatus = Status::Standing;
+	CharacterState playerStatus = CharacterState::Standing;
 	bool left, right, jump;
+	
+	int animIndex = 0;
+	int animCount = 0;
 	
 	Graphics2::Graphics2* g2;
 	
@@ -81,6 +84,51 @@ namespace {
 		g2->setColor(Graphics1::Color::White);
 	}
 	
+	// Return true if animation cycle is complete
+	bool updateCharacter() {
+		switch (playerStatus) {
+			case WalkingRight: {
+				//log(LogLevel::Info, "Walk right");
+				drawSingleTile(g2, cameraPosition, playerPosition, Walk0 + animIndex);
+				break;
+			}
+			case WalkingLeft: {
+				//log(LogLevel::Info, "Walk left");
+				drawSingleTile(g2, cameraPosition, playerPosition, Walk0 + animIndex, true);
+				break;
+			}
+			case JumpingRight: {
+				//log(LogLevel::Info, "Jump right");
+				drawSingleTile(g2, cameraPosition, playerPosition, Jump2 /*+ animIndex*/);
+				break;
+			}
+			case JumpingLeft: {
+				//log(LogLevel::Info, "Jump left");
+				drawSingleTile(g2, cameraPosition, playerPosition, Jump2 /*+ animIndex*/, true);
+				break;
+			}
+			case Standing: {
+				//log(LogLevel::Info, "Standing");
+				drawSingleTile(g2, cameraPosition, playerPosition, Stand);
+				break;
+			}
+			default:
+				break;
+		}
+		
+		++animCount;
+		
+		if (animCount > 20) {
+			animCount = 0;
+			++animIndex;
+			if (animIndex >= 8) {
+				animIndex = 0;
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	void update() {
 		double t = System::time() - startTime;
 		double deltaT = t - lastTime;
@@ -135,7 +183,7 @@ namespace {
 			}
 		}
 		
-		animate(playerStatus, g2, cameraPosition, playerPosition);
+		updateCharacter();
 		
 		if (debug) {
 			// Debug: show bounding box

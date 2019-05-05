@@ -13,13 +13,10 @@ using namespace Kore;
 namespace{
 	Graphics4::Texture* image;
 	
-	int animIndex = 0;
-	int animCount = 0;
-	
 	int tilesetRows = -1;
 	int tilesetColumns = -1;
 	
-	Status lastPlayerStatus;
+	CharacterState lastPlayerStatus;
 	
 	void loadCsv(const char* csvFile) {
 		FileReader file(csvFile);
@@ -80,7 +77,6 @@ void getBoxColliders(Kore::vec3* positions, int& count) {
 			}
 		}
 	}
-	
 	count = boxCounter;
 }
 
@@ -95,9 +91,7 @@ void getTiles(TileID ID, Kore::vec3* positions, int& size) {
 			}
 		}
 	}
-	
 	size = tileCounter;
-	
 }
 
 void drawSingleTile(Kore::Graphics2::Graphics2* g2, Kore::vec3 cameraPosition, Kore::vec3 tilePosition, int tileID, bool reverse) {
@@ -108,56 +102,6 @@ void drawSingleTile(Kore::Graphics2::Graphics2* g2, Kore::vec3 cameraPosition, K
 		g2->drawScaledSubImage(image, column * tileWidth, row * tileHeight, tileWidth, tileHeight, tilePosition.x() - cameraPosition.x(), tilePosition.y() - cameraPosition.y(), tileWidth, tileHeight);
 	else
 		g2->drawScaledSubImage(image, (column + 1)  * tileWidth, row * tileHeight, -tileWidth, tileHeight, tilePosition.x() - cameraPosition.x(), tilePosition.y() - cameraPosition.y(), tileWidth, tileHeight);
-}
-
-bool animate(Status playerStatus, Graphics2::Graphics2* g2, vec3 cameraPosition, vec3 characterPosition) {
-	if (playerStatus != lastPlayerStatus) {
-		animCount = 0;
-		animIndex = 0;
-		lastPlayerStatus = playerStatus;
-	}
-		
-	switch (playerStatus) {
-		case WalkingRight: {
-			//log(LogLevel::Info, "Walk right");
-			drawSingleTile(g2, cameraPosition, characterPosition, Walk0 + animIndex);
-			break;
-		}
-		case WalkingLeft: {
-			//log(LogLevel::Info, "Walk left");
-			drawSingleTile(g2, cameraPosition, characterPosition, Walk0 + animIndex, true);
-			break;
-		}
-		case JumpingRight: {
-			//log(LogLevel::Info, "Jump right");
-			drawSingleTile(g2, cameraPosition, characterPosition, Jump2 /*+ animIndex*/);
-			break;
-		}
-		case JumpingLeft: {
-			//log(LogLevel::Info, "Jump left");
-			drawSingleTile(g2, cameraPosition, characterPosition, Jump2 /*+ animIndex*/, true);
-			break;
-		}
-		case Standing: {
-			//log(LogLevel::Info, "Standing");
-			drawSingleTile(g2, cameraPosition, characterPosition, Stand);
-			break;
-		}
-		default:
-			break;
-	}
-	
-	++animCount;
-	
-	if (animCount > 20) {
-		animCount = 0;
-		++animIndex;
-		if (animIndex >= 8) {
-			animIndex = 0;
-			return true;
-		}
-	}
-	return false;
 }
 
 int getTileID(float px, float py) {
