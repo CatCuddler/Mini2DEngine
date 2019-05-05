@@ -4,13 +4,6 @@
 
 class SphereCollider;
 
-// A plane is defined as the plane's normal and the distance of the plane to the origin
-class PlaneCollider {
-public:
-	float d;
-	Kore::vec3 normal;
-};
-
 // A box is defined by width and height and position (top left)
 class BoxCollider {
 public:
@@ -61,17 +54,4 @@ public:
 	float PenetrationDepth(const SphereCollider& other) {
 		return other.radius + radius - (other.center - center).getLength();
 	}
-	
-	bool IntersectsWith(const PlaneCollider& other) {
-		return other.normal.dot(center) + other.d <= radius;
-	}
-	
-	Kore::vec3 GetCollisionNormal(const PlaneCollider& other) {
-		return other.normal;
-	}
-	
-	float PenetrationDepth(const PlaneCollider &other) {
-		return other.normal.dot(center) + other.d - radius;
-	}
-	
 };

@@ -13,48 +13,6 @@ PhysicsObject::PhysicsObject() {
 	id = ++currentID;
 }
 
-/*void PhysicsObject::HandleCollision(const PlaneCollider& planeCollider, float deltaT) {
-	// Check if we are colliding with the plane
-	if (collider.IntersectsWith(planeCollider)) {
-		
-		// Kore::log(Info, "Floor");
-		float restitution = 0.8f;
-		
-		// Calculate the separating velocity
-		float separatingVelocity = -(planeCollider.normal * velocity);
-		
-		if (separatingVelocity < 0) return;
-		
-		// Calculate a new one, based on the old one and the restitution
-		float newSeparatingVelocity = -separatingVelocity * restitution;
-		
-		
-		// Move the object out of the collider
-		float penetrationDepth = collider.PenetrationDepth(planeCollider);
-		//Position += collider.normal * -penetrationDepth;
-		//SetPosition(Position);
-		
-		//bool Result = sphereCollider.IntersectsWith(collider);
-		
-		// Calculate the impulse
-		// The plane is immovable, so we have to move all the way
-		float deltaVelocity = newSeparatingVelocity - separatingVelocity;
-		
-		// If the object is very slow, assume resting contact
-		if (deltaVelocity > -1.5f) {
-			velocity.set(0, 0, 0);
-			position = vec3(position.x(), collider.radius - planeCollider.d, position.z());
-			collider.center = position;
-			return;
-		}
-		
-		// Apply the impulse
-		vec3 impulse = planeCollider.normal * -deltaVelocity;
-		
-		ApplyImpulse(impulse);
-	}
-}*/
-
 void PhysicsObject::HandleCollision(BoxCollider* boxCollider, float deltaT) {
 	// Handle the collision between two boxes
 	if (collider.IntersectsWith(*boxCollider)) {

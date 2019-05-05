@@ -45,9 +45,6 @@ public:
 	// Apply an impulse
 	void ApplyImpulse(Kore::vec3 impulse);
 	
-	// Handle the collision with the plane (includes testing for intersection)
-//	void HandleCollision(const PlaneCollider& collider, float deltaT);
-	
 	// Handle the collision with the ground
 	void HandleCollision(BoxCollider* collider, float deltaT);
 	

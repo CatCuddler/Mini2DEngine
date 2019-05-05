@@ -65,7 +65,7 @@ namespace {
 		while (*bc != nullptr) {
 			vec3 pos = (*bc)->position;
 			if ((playerPosition - pos).getLength() <= dist) {
-				log(LogLevel::Info, "On the ground");
+				//log(LogLevel::Info, "On the ground");
 				return true;
 			}
 			++bc;
