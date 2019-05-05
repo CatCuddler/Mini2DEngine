@@ -50,10 +50,14 @@ namespace {
 	double startTime;
 	double lastTime;
 	
-	bool collectCoins(vec3 playerPosition, vec3 coinPosition) {
-		if ((playerPosition - coinPosition).getLength() < 20) {
-			++cointCollected;
-			return true;
+	bool collectCoins() {
+		for (int i = 0; i < coinNum; i++) {
+			vec3 coinPosition = coins[i]->GetPosition();
+			if ((playerPosition - coinPosition).getLength() < 20) {
+				coins[i]->SetPosition(inventoryPosition + vec3(cointCollected * 2, 0, 0));
+				++cointCollected;
+				return true;
+			}
 		}
 		return false;
 	}
@@ -165,6 +169,9 @@ namespace {
 			}
 		}
 		
+		// Collect a coin if the player is near enough
+		collectCoins();
+		
 		// Update the physics and render
 		physics.Update(deltaT);
 		
@@ -177,12 +184,9 @@ namespace {
 		for (int i = 0; i < coinNum; i++) {
 			vec3 pos = coins[i]->GetPosition();
 			drawSingleTile(g2, cameraPosition, pos, TileID::Dollar);
-			
-			if (collectCoins(playerPosition, pos)) {
-				coins[i]->SetPosition(inventoryPosition + vec3(cointCollected * 2, 0, 0));
-			}
 		}
 		
+		// Draw the player
 		updateCharacter();
 		
 		if (debug) {
