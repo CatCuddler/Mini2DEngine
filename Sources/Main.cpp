@@ -291,7 +291,7 @@ namespace {
 	}
 }
 
-int kore(int argc, char** argv) {
+int kickstart(int argc, char** argv) {
 	Kore::System::init("Mini2DEngine", width * scale, height * scale);
 	Kore::System::setCallback(update);
 	

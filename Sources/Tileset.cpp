@@ -3,7 +3,7 @@
 #include <Kore/IO/FileReader.h>
 #include <Kore/Log.h>
 #include <Kore/Graphics1/Image.h>
-#include <Kore/TextureImpl.h>
+//#include <Kore/TextureImpl.h>
 
 #include "Tileset.h"
 #include "Settings.h"
