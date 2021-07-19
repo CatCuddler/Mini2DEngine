@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <Kore/IO/FileReader.h>
 #include <Kore/Input/Keyboard.h>
 #include <Kore/Graphics4/Graphics.h>
@@ -20,7 +18,7 @@ using namespace Kore;
 namespace {
 	const int width = tileWidth * mapColumns;
 	const int height = tileHeight * mapRows;
-	const int scale = 2;
+	const int scale = 5;
 	
 	CharacterState playerStatus = CharacterState::Standing;
 	bool left, right, jump;
@@ -30,17 +28,15 @@ namespace {
 	
 	Graphics2::Graphics2* g2;
 	
-	PhysicsWorld physics;
-	PhysicsObject* player;
-	PhysicsObject** coins;
+	PhysicsWorld* physics;
+	BoxPhysicsObject* player;
+	SpherePhysicsObject** coins;
 	int coinNum = 0;
 	int cointCollected = 0;
 	
-	const int velocity = 50;
-	
 	vec3 playerPosition = vec3(0, 0, 0);
 	vec3 cameraPosition = vec3(0, 0, 0);
-	vec3 inventoryPosition = vec3(0, 0, 0);
+	vec3 inventoryPosition = vec3(0, tileHeight, 0);
 	
 	Kravur* font14;
 	Kravur* font24;
@@ -52,9 +48,10 @@ namespace {
 	
 	bool collectCoins() {
 		for (int i = 0; i < coinNum; i++) {
-			vec3 coinPosition = coins[i]->GetPosition();
-			if ((playerPosition - coinPosition).getLength() < 20) {
-				coins[i]->SetPosition(inventoryPosition + vec3(cointCollected * 2, 0, 0));
+			if (coins[i]->collider->IntersectsWith(*player->collider)) {
+				//log(LogLevel::Info, "Collect coin at position %f %f", coins[i]->position.x(), coins[i]->position.y());
+				coins[i]->position = inventoryPosition + vec3(cointCollected * 2, 0, 0);
+				coins[i]->collider->center = coins[i]->position;
 				++cointCollected;
 				return true;
 			}
@@ -63,26 +60,20 @@ namespace {
 	}
 	
 	bool feetOnTheGround() {
-		// Calculate max distance of the tiles when they are beside each other
-		vec3 pos1 = vec3(0, 0, 0);
-		vec3 pos2 = vec3(tileWidth/2, tileHeight, 0);
-		float dist = (pos1 - pos2).getLength();
-		
-		BoxCollider** bc = &physics.boxColliders[0];
-		while (*bc != nullptr) {
-			vec3 pos = (*bc)->position;
-			if ((playerPosition - pos).getLength() <= dist) {
-				//log(LogLevel::Info, "On the ground");
+		BoxPhysicsObject** current = &physics->boxPhysicsObjects[0];
+		while (*current != nullptr) {
+			if((*current)->collider->IntersectsWith(*player->collider)) {
+				//log(LogLevel::Info, "On the ground %f %f", (*current)->collider->position.x(), (*current)->collider->position.y());
 				return true;
 			}
-			++bc;
+			++current;
 		}
 		return false;
 	}
 	
 	void drawGUI(const char* text) {
 		if (text != nullptr) {
-			g2->drawString(text, 10, tileHeight);
+			g2->drawString(text, 10, 10);
 		}
 		
 		g2->setColor(Graphics1::Color::White);
@@ -142,38 +133,39 @@ namespace {
 		Graphics4::begin();
 		Graphics4::clear(Graphics4::ClearColorFlag);
 		
-		playerPosition = player->GetPosition();
+		playerPosition = player->position;
+		
+		const float impulse = 10;
 		
 		// Move player only if the feet are on the ground
-		if (feetOnTheGround()) {
-			playerStatus = Standing;
+		playerStatus = Standing;
+		//if (feetOnTheGround()) {
 			if (left && playerPosition.x() > 0) {
 				playerStatus = WalkingLeft;
-				player->ApplyImpulse(vec3(-velocity, 0, 0));
+				player->ApplyImpulse(vec3(-impulse, 0, 0));
 			} else if (right && playerPosition.x() < mapColumns * tileWidth - tileWidth) {
 				playerStatus = WalkingRight;
-				player->ApplyImpulse(vec3(velocity, 0, 0));
+				player->ApplyImpulse(vec3(impulse, 0, 0));
 			}
 			
 			if (jump) {
+				const float jumpImpulse = 100;
 				if (left) {
 					playerStatus = JumpingLeft;
-					player->ApplyImpulse(vec3(-velocity, 0, 0));
 				} else if (right) {
 					playerStatus = JumpingRight;
-					player->ApplyImpulse(vec3(velocity, 0, 0));
 				}
-				player->ApplyImpulse(vec3(0, -700, 0));
+				player->ApplyImpulse(vec3(0, -jumpImpulse, 0));
 				
 				jump = false;
 			}
-		}
+		//}
 		
 		// Collect a coin if the player is near enough
 		collectCoins();
 		
 		// Update the physics and render
-		physics.Update(deltaT);
+		physics->Update(deltaT);
 		
 		g2->begin();
 		
@@ -182,7 +174,7 @@ namespace {
 		
 		// Draw coins
 		for (int i = 0; i < coinNum; i++) {
-			vec3 pos = coins[i]->GetPosition();
+			vec3 pos = coins[i]->position;
 			drawSingleTile(g2, cameraPosition, pos, TileID::Dollar);
 		}
 		
@@ -191,7 +183,8 @@ namespace {
 		
 		if (debug) {
 			// Debug: show bounding box
-			physics.DrawBoundingBox(g2);
+			physics->DrawBoundingBox(g2);
+			physics->DrawBoundingSphere(g2);
 		}
 		
 		// Draw GUI
@@ -213,38 +206,41 @@ namespace {
 		getTilePosition(TileID::Stand, posX, posY);
 		playerPosition = vec3(posX, posY, 0);
 		
-		player = new PhysicsObject();
-		player->SetPosition(playerPosition);
+		player = new BoxPhysicsObject();
+		player->position = playerPosition;
+		player->collider->position = playerPosition;
 		player->velocity = vec3(0, 0, 0);
-		player->Mass = 5;
-		physics.AddObject(player);
+		player->Mass = 10;
 	}
 	
 	void spawnCoins() {
 		Kore::vec3 coinPositions[mapRows * mapColumns];
+		coinNum = 0;
 		getTiles(TileID::Dollar, coinPositions, coinNum);
 		
-		coins = new PhysicsObject*[coinNum];
+		coins = new SpherePhysicsObject*[coinNum];
 		for (int i = 0; i < coinNum; i++) {
-			PhysicsObject* coin = new PhysicsObject();
-			coin->SetPosition(coinPositions[i]);
-			coin->Mass = 5;
-			coins[i] = coin;
-			//physics.AddObject(coin);
+			coins[i] = new SpherePhysicsObject();
+			coins[i]->position = coinPositions[i];
+			coins[i]->collider->center = vec3(coins[i]->position.x()+tileWidth/2, coins[i]->position.y()+tileHeight/2, 0);
+			physics->AddObject(coins[i]);
 		}
 	}
 	
 	void initBoxColliders() {
-		int size;
+		int size = 0;
 		Kore::vec3 boxColliders[mapRows * mapColumns];
-		getBoxColliders(boxColliders, size);
+		getTiles(TileID::Ground0, boxColliders, size);
+		getTiles(TileID::Ground1, boxColliders, size);
+		getTiles(TileID::Ground2, boxColliders, size);
+		getTiles(TileID::Ground3, boxColliders, size);
+		getTiles(TileID::Ground4, boxColliders, size);
 		
 		for (int i = 0; i < size; ++i) {
-			BoxCollider* boxCollider = new BoxCollider();
+			BoxPhysicsObject* boxCollider = new BoxPhysicsObject();
 			boxCollider->position = boxColliders[i];
-			boxCollider->width = tileWidth;
-			boxCollider->height = tileHeight;
-			physics.AddObject(boxCollider);
+			boxCollider->collider->position = boxColliders[i];
+			physics->AddObject(boxCollider);
 		}
 	}
 	
@@ -300,7 +296,7 @@ int kickstart(int argc, char** argv) {
 	Keyboard::the()->KeyDown = keyDown;
 	Keyboard::the()->KeyUp = keyUp;
 	
-	g2 = new Graphics2::Graphics2(width, height, false);
+	g2 = new Graphics2::Graphics2(width, height);
 	//g2->setImageScaleQuality(Graphics2::Low);
 	
 	font14 = Kravur::load("Fonts/arial", FontStyle(), 14);
@@ -314,6 +310,7 @@ int kickstart(int argc, char** argv) {
 	
 	initTiles("tileset/map2.csv", "tileset/tileset2.png");
 	spawnPlayer();
+	physics = new PhysicsWorld(player);
 	spawnCoins();
 	initBoxColliders();
 	

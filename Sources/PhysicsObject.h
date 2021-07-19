@@ -1,38 +1,16 @@
 #pragma once
 
-#include "pch.h"
-
-#include <Kore/Graphics1/Image.h>
-#include <Kore/Graphics5/Graphics.h>
-
+#include "PhysicsWorld.h"
 #include "Collision.h"
 #include "Settings.h"
 
-// A physically simulated object
+// A physically simulated object -> the player
 class PhysicsObject {
-	Kore::vec3 position = Kore::vec3(0, 0, 0);
-	
 public:
 	float Mass;
+	Kore::vec3 position;
 	Kore::vec3 velocity;
-	int id;
-	
-	static int currentID;
-	
-	void SetPosition(Kore::vec3 pos) {
-		position = pos;
-		collider.position = pos;
-	}
-	
-	Kore::vec3 GetPosition() {
-		return position;
-	}
-	
-	// Force accumulator
-	Kore::vec3 Accumulator;
-	
-	//SphereCollider collider;
-	BoxCollider collider;
+	Kore::vec3 acceleration;
 	
 	PhysicsObject();
 	
@@ -44,10 +22,52 @@ public:
 	
 	// Apply an impulse
 	void ApplyImpulse(Kore::vec3 impulse);
+};
+
+class BoxPhysicsObject : public PhysicsObject {
+public:
+	BoxCollider* collider;
 	
-	// Handle the collision with the ground
-	void HandleCollision(BoxCollider* collider, float deltaT);
+	BoxPhysicsObject() : PhysicsObject() {
+		collider = new BoxCollider();
+		collider->position = position;
+		collider->width = tileWidth;
+		collider->height = tileHeight;
+	}
 	
-	// Handle the collision with another boxCollider (includes testing for intersection)
-	void HandleCollision(PhysicsObject* other, float deltaT);
+	~BoxPhysicsObject() {
+		collider = nullptr;
+	}
+	
+	// Handle collisions
+	void HandleCollision(BoxPhysicsObject* other, float deltaT);
+	
+	void Integrate(float deltaT) {
+		PhysicsObject::Integrate(deltaT);
+		collider->position = position;
+	}
+};
+
+class SpherePhysicsObject : public PhysicsObject {
+public:
+	SphereCollider* collider;
+	
+	SpherePhysicsObject() : PhysicsObject() {
+		collider = new SphereCollider();
+		collider->center = Kore::vec3(position.x()+tileWidth/2, position.y()+tileHeight/2, 0);
+		collider->radius = tileWidth/2;
+	}
+	
+	~SpherePhysicsObject() {
+		collider = nullptr;
+	}
+	
+	// Handle collisions
+	void HandleCollision(SpherePhysicsObject* other, float deltaT);
+	void HandleCollision(BoxPhysicsObject* other, float deltaT);
+	
+	void Integrate(float deltaT) {
+		PhysicsObject::Integrate(deltaT);
+		collider->center = Kore::vec3(position.x()+tileWidth/2, position.y()+tileHeight/2, 0);
+	}
 };

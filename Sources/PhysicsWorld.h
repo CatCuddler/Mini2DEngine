@@ -1,21 +1,24 @@
 #pragma once
 
-#include <Kore/Graphics4/Graphics.h>
 #include <Kore/Graphics2/Graphics.h>
 
+#include "PhysicsObject.h"
 #include "Collision.h"
 
-  class PhysicsObject;
+class BoxPhysicsObject;
+class SpherePhysicsObject;
 
 // Handles all physically simulated objects.
 class PhysicsWorld {
 public:
 	
 	// Null terminated array
-	PhysicsObject** physicsObjects;
-	BoxCollider** boxColliders;
+	BoxPhysicsObject* player;
+	BoxPhysicsObject** boxPhysicsObjects;
+	SpherePhysicsObject** spherePhysicsObjects;
 	
-	PhysicsWorld();
+	PhysicsWorld(BoxPhysicsObject* player);
+	~PhysicsWorld();
 	
 	// Integration step
 	void Update(float deltaT);
@@ -24,8 +27,9 @@ public:
 	void HandleCollisions(float deltaT);
 	
 	// Add an object to be simulated
-	void AddObject(PhysicsObject* po);
-	void AddObject(BoxCollider* bc);
+	void AddObject(BoxPhysicsObject* bc);
+	void AddObject(SpherePhysicsObject* bc);
 	
 	void DrawBoundingBox(Kore::Graphics2::Graphics2* g2);
+	void DrawBoundingSphere(Kore::Graphics2::Graphics2* g2);
 };

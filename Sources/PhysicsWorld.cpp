@@ -1,78 +1,67 @@
-#include "pch.h"
-
 #include <Kore/Graphics1/Color.h>
+#include <Kore/Log.h>
 
 #include "PhysicsWorld.h"
-#include "PhysicsObject.h"
 
 using namespace Kore;
 
 namespace {
-	const int arraySize = 100;
+	int arraySize;
 }
 
-PhysicsWorld::PhysicsWorld() {
-	physicsObjects = new PhysicsObject*[arraySize];
-	boxColliders = new BoxCollider*[arraySize];
+PhysicsWorld::PhysicsWorld(BoxPhysicsObject* player) : player(player) {
+	arraySize = mapRows * mapColumns;
+	boxPhysicsObjects = new BoxPhysicsObject*[arraySize];
+	spherePhysicsObjects = new SpherePhysicsObject*[arraySize];
 	for (int i = 0; i < arraySize; i++) {
-		physicsObjects[i] = nullptr;
-		boxColliders[i] = nullptr;
+		boxPhysicsObjects[i] = nullptr;
+		spherePhysicsObjects[i] = nullptr;
 	}
+}
+
+PhysicsWorld::~PhysicsWorld() {
+	boxPhysicsObjects = nullptr;
+	spherePhysicsObjects = nullptr;
 }
 
 void PhysicsWorld::Update(float deltaT) {
-	PhysicsObject** currentP = &physicsObjects[0];
-	while (*currentP != nullptr) {
+	if (player != nullptr) {
 		// Apply gravity (= constant accceleration, so we multiply with the mass and divide in the integration step.
 		// The alternative would be to add gravity during the integration as a constant.
 		
-		float gravity = 9.81 * 100;
-		(*currentP)->ApplyForceToCenter(vec3(0, (*currentP)->Mass * gravity, 0));
+		const float gravity = 9.81;
+		player->ApplyForceToCenter(vec3(0, player->Mass * gravity, 0));
 		
 		// Integrate the equations of motion
-		(*currentP)->Integrate(deltaT);
-		++currentP;
+		player->Integrate(deltaT);
 	}
 	
-	// Check for collisions with the ground
-	currentP = &physicsObjects[0];
-	while (*currentP != nullptr) {
-		BoxCollider** bc = &boxColliders[0];
-		while (*bc != nullptr) {
-			(*currentP)->HandleCollision(*bc, deltaT);
-			++bc;
-		}
-		++currentP;
-	}
-	
-	// Check for collisions with the other physics objects
-	currentP = &physicsObjects[0];
-	while (*currentP != nullptr) {
-		PhysicsObject** currentCollision = currentP + 1;
+	HandleCollisions(deltaT);
+}
+
+void PhysicsWorld::HandleCollisions(float deltaT) {
+	// Check for collisions with box colliders
+	if (player != nullptr) {
+		BoxPhysicsObject** currentCollision = &boxPhysicsObjects[0];
 		while (*currentCollision != nullptr) {
-			(*currentP)->HandleCollision(*currentCollision, deltaT);
+			player->HandleCollision(*currentCollision, deltaT);
 			++currentCollision;
 		}
-		
-		++currentP;
 	}
+	
+	// Check for collisions with sphere colliders
+	/*if (player != nullptr) {
+		SpherePhysicsObject** currentCollision = &spherePhysicsObjects[0];
+		while (*currentCollision != nullptr) {
+			(*currentCollision)->HandleCollision(player, deltaT);
+			++currentCollision;
+		}
+	}*/
 }
 
-
-void PhysicsWorld::AddObject(PhysicsObject* po) {
+void PhysicsWorld::AddObject(BoxPhysicsObject* bc) {
 	int counter = 0;
-	PhysicsObject** current = &physicsObjects[0];
-	while (*current != nullptr) {
-		assert(counter < arraySize);
-		++current;
-		++counter;
-	}
-	*current = po;
-}
-
-void PhysicsWorld::AddObject(BoxCollider* bc) {
-	int counter = 0;
-	BoxCollider** current = &boxColliders[0];
+	BoxPhysicsObject** current = &boxPhysicsObjects[0];
 	while (*current != nullptr) {
 		assert(counter < arraySize);
 		++current;
@@ -81,22 +70,45 @@ void PhysicsWorld::AddObject(BoxCollider* bc) {
 	*current = bc;
 }
 
-void PhysicsWorld::DrawBoundingBox(Kore::Graphics2::Graphics2* g2) {
-	g2->setColor(Graphics1::Color::Red);
-	PhysicsObject** po = &physicsObjects[0];
-	while (*po != nullptr) {
-		vec3 position = (*po)->collider.position;
-		g2->drawRect(position.x(), position.y(), (*po)->collider.width, (*po)->collider.height);
-		++po;
+void PhysicsWorld::AddObject(SpherePhysicsObject* sc) {
+	int counter = 0;
+	SpherePhysicsObject** current = &spherePhysicsObjects[0];
+	while (*current != nullptr) {
+		assert(counter < arraySize);
+		++current;
+		++counter;
 	}
-	
+	*current = sc;
+}
+
+void PhysicsWorld::DrawBoundingBox(Kore::Graphics2::Graphics2* g2) {
 	g2->setColor(Graphics1::Color::Yellow);
-	BoxCollider** bc = &boxColliders[0];
+	
+	BoxPhysicsObject** bc = &boxPhysicsObjects[0];
 	while (*bc != nullptr) {
-		vec3 position = (*bc)->position;
-		g2->drawRect(position.x(), position.y(), (*bc)->width, (*bc)->height);
+		vec3 position = (*bc)->collider->position;
+		g2->drawRect(position.x(), position.y(), (*bc)->collider->width, (*bc)->collider->height);
 		++bc;
 	}
 	
+	g2->setColor(Graphics1::Color::Red);
+	if (player != nullptr) {
+		vec3 position = player->collider->position;
+		g2->drawRect(position.x(), position.y(), player->collider->width, player->collider->height);
+	}
+	
 	g2->setColor(Graphics1::Color::White);
+}
+
+void PhysicsWorld::DrawBoundingSphere(Kore::Graphics2::Graphics2* g2) {
+	g2->setFontColor(Graphics1::Color::Red);
+	
+	SpherePhysicsObject** sc = &spherePhysicsObjects[0];
+	while (*sc != nullptr) {
+		vec3 center = (*sc)->collider->center;
+		g2->drawString("*", center.x(), center.y());
+		++sc;
+	}
+	
+	g2->setFontColor(Graphics1::Color::White);
 }
